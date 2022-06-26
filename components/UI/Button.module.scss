@@ -1,0 +1,13 @@
+.button{
+    border: none;
+    background-color: darkblue;
+    color:white;
+    font-size: min(4vw,2rem);
+    width: min(50vw,500px);
+    padding: 1rem 0;
+    border-radius: 1rem;
+    cursor: pointer;
+    &:hover{
+        filter: brightness(150%);
+    }
+}

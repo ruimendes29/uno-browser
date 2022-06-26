@@ -1,0 +1,32 @@
+.home{
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    gap:1rem;
+    justify-content: center;
+    align-items: center;
+    .icon{
+        font-size: min(10vw, 10rem);
+    }
+}
+
+.teste{
+    width: 100px;
+    height: 800px;
+    background-color: red;
+    transform-origin: top right;
+    transition: all 0.5s ease-in-out;
+    transform: rotate(-90deg) translateX(-50%);
+    position: relative;
+    &::after{
+        width: 50px;
+        height: 300px;
+        background-color: green;
+        content: "";
+        position: absolute;
+        top:0;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+}

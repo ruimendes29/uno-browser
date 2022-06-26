@@ -1,0 +1,76 @@
+.card {
+  width: 8em;
+  height: 11.2em;
+  display: flex;
+  place-items: center;
+  place-content: center;
+  z-index: 1;
+  position: relative;
+  transition: all 0.3s ease-in-out;
+  border: 8px solid white;
+  border-radius: 0.5em;
+  outline: black solid 2px;
+  outline-offset: -2px;
+  .sub {
+    position: absolute;
+    width: 20%;
+    min-width: fit-content;
+    font-size: 1.5em;
+    text-align: center;
+    color: white;
+    text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;
+
+    &.top {
+      top: 0;
+      left: 2%;
+    }
+    &.bottom {
+      bottom: 0;
+      right: 2%;
+    }
+    &.img{
+        min-width: 20%;
+    }
+  }
+  .identifier {
+    font-size: 4em;
+    position: relative;
+    display: inline-flex;
+    place-items: center;
+    width: 70%;
+    place-content: center;
+    color: white;
+    text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;
+
+    &::after {
+        position: absolute;
+        content: "";
+        max-width: 150%;
+        max-height: 300%;
+        width: 1.4em;
+        height: 2.3em;
+        border: solid 2px black;
+        z-index: -1;
+        border-radius: 50%;
+        background-color: white;
+        transform: rotate(30deg);
+        display: block;
+      }
+  }
+}
+
+.card.back{
+  &::after{
+    content: "";
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top:0;
+    left: 0;
+    background-color: black;
+    display: block;
+  }
+  .identifier{
+    display: none;
+  }
+}
