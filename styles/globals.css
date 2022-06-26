@@ -1,5 +1,13 @@
-:root{
-  --i:3
+@keyframes upanddown {
+  0% {
+    transform: translateX(-50%) translateY(100%);
+  }
+  50% {
+    transform:translateX(-50%) translateY(0%);
+  }
+  100% {
+    transform:translateX(-50%) translateY(100%);
+  }
 }
 
 html,
@@ -26,4 +34,16 @@ a {
 
 *::before{
   box-sizing: border-box;
+}
+
+.arrow-pointer::before{
+    border-left: 9px solid transparent;
+    border-right: 9px solid transparent;
+    border-bottom: 9px solid black;
+    position: absolute;
+    left: 50%;
+    bottom: -1.1rem;
+    content: "";
+    z-index: 3;
+    animation: upanddown infinite 1.5s;
 }

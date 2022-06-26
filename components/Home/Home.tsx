@@ -13,6 +13,7 @@ import { getAuth, signInAnonymously, onAuthStateChanged } from "firebase/auth";
 import { getDatabase, ref, set, get } from "firebase/database";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleNotch } from "@fortawesome/free-solid-svg-icons";
+import { setNewGame } from "../Game/GameUtils";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -33,34 +34,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-//Possible uno colors
-const colors = ["red", "blue", "green", "yellow"];
-// Array with all numbers and special cards that have color
-const non_specials = [...Array(10).keys(), "reverse", "forbid", "+2"];
-//special cards
-const specials = ["+4", "choose"];
-
-/**
- * Loop through the colors and numbers to create a whole UNO deck.
- * @returns A deck of UNO cards.
- */
-const getDeck = () => {
-  const ret = new Map();
-  let id = 0;
-  for (const color of colors) {
-    console.log(color);
-    for (const non_special of non_specials) {
-      ret.set(id, { identifier: non_special, color, id: id++ });
-      ret.set(id, { identifier: non_special, color, id: id++ });
-    }
-  }
-  for (const special of specials) {
-    ret.set(id, { identifier: special, id: id++ });
-    ret.set(id, { identifier: special, id: id++ });
-  }
-  return ret;
-};
-
 const Home = () => {
   //player name
   const [name, setName] = useState("");
@@ -70,6 +43,13 @@ const Home = () => {
   const nameRef = useRef(null);
   //ref for room field
   const roomRef = useRef(null);
+
+  const [rules,setRules] = useState({
+    takeUntilPlay: true,
+    canPlayMultiple: false,
+    canPlayOverTake: false,
+    endWhenOneEnds: true,
+  })
 
   const [loading, setLoading] = useState(true);
 
@@ -93,7 +73,7 @@ const Home = () => {
         }
       } else {
         setName(name!);
-        signInAnonymously(auth).catch((error) => {
+        await signInAnonymously(auth).catch((error) => {
           console.log(error);
         });
       }
@@ -106,7 +86,7 @@ const Home = () => {
   useEffect(() => {
     if (localStorage.getItem("player")) {
       signIn();
-    }
+    } else setLoading(false);
   }, [signIn]);
 
   useEffect(() => {
@@ -121,61 +101,48 @@ const Home = () => {
         set(playerRef, {
           id: user.uid,
           name: name,
-          room: '',
+          room: "",
         });
       } else {
         console.error("Couldn't create user!");
       }
     });
-  }, [ name, playerId]);
+  }, [name, playerId]);
 
-  const handleCreateSession = () => {
-      
+  const handleCreateSession = async () => {
+    setLoading(true);
     const db = getDatabase(app);
-    const gameRef = ref(db, `rooms/${playerId}`);
+
+    const roomId = Date.now().toString(36) + playerId;
+    console.log(roomId);
+    const gameRef = ref(db, `rooms/${roomId}`);
     const playerRef = ref(db, `players/${playerId}`);
-    set(playerRef, {
+    await set(playerRef, {
       id: playerId,
       name: name,
-      room: playerId,
+      room: roomId,
     });
-    // shuffle the deck
-    const deck = Array.from(getDeck())
-      .map((el) => el[1])
-      .sort(() => Math.random() - 0.5);
-    set(gameRef, {
-      id: playerId,
-      players: [playerId],
-      // distribute 7 cards for each player
-      cards: [
-        deck.slice(0, 7),
-        deck.slice(7, 14),
-        deck.slice(14, 21),
-        deck.slice(21, 28),
-      ],
-      // assign the rest to the deck
-      deck: deck.slice(29),
-      top: deck[28],
-      turn: 0,
-      direction: 1,
-    });
-    router.push("/game/" + playerId);
+    await setNewGame(initializeApp(firebaseConfig), roomId, playerId,rules);
+    await router.push("/game/" + roomId);
+    setLoading(false);
   };
 
   const handleJoinSession = async (room: string) => {
+    setLoading(true);
     const db = getDatabase(app);
     const gameRef = ref(db, `rooms/${room}`);
     const gameInfo = (await get(gameRef)).val();
     if (gameInfo) {
       const playerRef = ref(db, `players/${playerId}`);
-      set(playerRef, {
+      await set(playerRef, {
         id: playerId,
         name: name,
         room: room,
       });
-      set(gameRef, { ...gameInfo, players: [...gameInfo.players, playerId] });
-      router.push("/game/" + room);
+      await set(gameRef, { ...gameInfo, players: [...gameInfo.players, playerId] });
+      await router.push("/game/" + room);
     }
+    setLoading(false);
   };
 
   return (

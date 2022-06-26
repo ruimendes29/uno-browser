@@ -1,0 +1,19 @@
+.colors-wrapper{
+    display: flex;
+    gap: 2vw;
+    .option{
+        width: 10vw;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        aspect-ratio: 1/1;
+        font-weight: bolder;
+        font-size: 2vw;
+        border-radius: 0.5vw;
+        border: 5px solid black;
+        cursor: pointer;
+        &:hover{
+            filter: brightness(50%);
+        }
+    }
+}

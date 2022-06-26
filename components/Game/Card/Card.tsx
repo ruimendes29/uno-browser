@@ -60,7 +60,9 @@ const Card = (props: {
         ...props.style,
         backgroundColor: `${props.color ? props.color : "black"}`,
       }}
-      className={`${classes[props.identifier]} ${props.className} ${classes.card}`}
+      className={`${classes[props.identifier]} ${props.className} ${
+        classes.card
+      }`}
     >
       <div
         className={`${subIdentifier.special ? classes.img : ""} ${

@@ -1,3 +1,5 @@
+
+
 .table {
   display: grid;
   height: 100vh;
@@ -14,8 +16,7 @@
     grid-row-start: 2;
     background-color: green;
   }
-  .waiting{
-
+  .waiting {
     font-size: min(10vw, 10rem);
     grid-column-start: 2;
     grid-row-start: 2;
@@ -23,7 +24,10 @@
     align-self: center;
     text-align: center;
   }
-  
+
+  .unplayable {
+    position: relative;
+  }
 
   .my-hand {
     grid-column-start: 2;
@@ -42,10 +46,10 @@
     display: inline-flex;
     justify-content: center;
     align-items: center;
-    
-    &>*{
+
+    & > * {
       transform-origin: top right;
-      transform: rotate(-90deg) translate(0%,-85%);
+      transform: rotate(-90deg) translate(0%, -85%);
     }
   }
   .top-player {
@@ -60,48 +64,47 @@
     display: inline-flex;
     justify-content: center;
     align-items: center;
-    &>*{
+    & > * {
       transform-origin: top left;
-      transform: rotate(90deg) translate(0%,-85%);
+      transform: rotate(90deg) translate(0%, -85%);
     }
   }
-  .top-card {
+  .playground {
     grid-column-start: 2;
     grid-row-start: 2;
     align-self: center;
     justify-self: center;
     transform: scale(2);
   }
-
 }
 
-.table.no-players{
-  &::after{
+.table.no-players {
+  &::after {
     display: none;
   }
 }
 
-.table.turn_0{
-  &::after{
+.table.turn_0 {
+  &::after {
     align-self: flex-end;
     justify-self: center;
-  };
+  }
 }
-.table.turn_1{
-  &::after{
+.table.turn_3 {
+  &::after {
     align-self: center;
     justify-self: flex-start;
-  };
+  }
 }
-.table.turn_2{
-  &::after{
+.table.turn_2 {
+  &::after {
     align-self: flex-start;
     justify-self: center;
-  };
+  }
 }
-.table.turn_3{
-  &::after{
+.table.turn_1 {
+  &::after {
     align-self: center;
     justify-self: flex-end;
-  };
+  }
 }

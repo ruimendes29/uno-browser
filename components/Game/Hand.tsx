@@ -35,15 +35,17 @@ const Hand = (props: {
   );
 
   useEffect(() => {
-    addEventListener("resize", () => {
+    if (props.cards) {
+      addEventListener("resize", () => {
+        updateTranslateValue(props.cards.length);
+      });
       updateTranslateValue(props.cards.length);
-    });
-    updateTranslateValue(props.cards.length);
-  }, [updateTranslateValue, props.cards.length]);
+    }
+  }, [updateTranslateValue, props.cards]);
 
   return (
     <div className={`${props.className} ${classes.hand}`}>
-      {props.cards.map((card: ICard, index: number) => {
+      {props.cards && props.cards.map((card: ICard, index: number) => {
         return (
           <Card
             onClick={
@@ -70,7 +72,7 @@ const Hand = (props: {
                       : { left: Math.floor(translateValue * index) + "px" }),
                   }),
             }}
-            key={card.id}
+            key={card.id+"_"+card.identifier+"_"+card.color}
             identifier={card.identifier}
             color={card.color}
           />

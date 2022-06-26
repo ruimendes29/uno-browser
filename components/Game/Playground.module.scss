@@ -1,0 +1,15 @@
+.playground {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  .cards-wrapper {
+    gap: 1rem;
+    display: flex;
+  }
+  .taker {
+    margin-top: 1rem;
+    width: 80%;
+    position: relative;
+  }
+}
