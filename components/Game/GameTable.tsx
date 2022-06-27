@@ -44,18 +44,7 @@ const turnToRelativePos = (myIndex: number, currentTurn: number) => {
 
 const numberOfPlayers = 4;
 
-const rules = {
-  takeUntilPlay: false,
-};
-
-const GameTable = (props: {
-  rules: {
-    takeUntilPlay: boolean;
-    canPlayMultiple: boolean;
-    canPlayOverTake: boolean;
-    endWhenOneEnds: boolean;
-  };
-}) => {
+const GameTable = () => {
   const app = initializeApp(firebaseConfig);
   onAuthStateChanged(getAuth(app), (user) => {
     if (!user) {
@@ -76,6 +65,7 @@ const GameTable = (props: {
     useState({ active: false, cards: [] });
   const [chooseColor, setChooseColor]: [ICard | undefined, any] =
     useState(undefined);
+  const [rules, setRules]: [any, any] = useState({});
   console.log(rules);
 
   useEffect(() => {
@@ -96,6 +86,7 @@ const GameTable = (props: {
           if (players < numberOfPlayers) {
             setPlayers(newRoomInfo.players.length);
           }
+          setRules(newRoomInfo.rules);
           setTopCard(newRoomInfo.top);
           setDeck(newRoomInfo.deck);
           if (index !== i) {
@@ -107,6 +98,7 @@ const GameTable = (props: {
           if (newRoomInfo.take !== take) {
             setTake(newRoomInfo.take);
           }
+          setRules;
           setCards([
             newRoomInfo.cards[index],
             getCardsFromOther(newRoomInfo, index, 1),
@@ -120,9 +112,8 @@ const GameTable = (props: {
 
   const cantPlay = useMemo(
     () =>
-      doesNotHavePlayableCards(cards[0], topCard, take, props.rules) &&
-      i === turn,
-    [cards, topCard, take, i, turn, props.rules]
+      doesNotHavePlayableCards(cards[0], topCard, take, rules) && i === turn,
+    [cards, topCard, take, i, turn, rules]
   );
 
   const handleColorChose = (color: string) => {
@@ -132,7 +123,7 @@ const GameTable = (props: {
       [{ id: card.id, identifier: card.identifier, color }],
       router.query.gameId,
       playerId!,
-      props.rules
+      rules
     );
     setChooseColor(false);
   };
@@ -149,7 +140,7 @@ const GameTable = (props: {
         };
       if (
         oldGroup.cards.length === 0 &&
-        cardIsPlayable(card, topCard, take, props.rules)
+        cardIsPlayable(card, topCard, take, rules)
       ) {
         return { ...oldGroup, cards: [card] };
       }
@@ -185,38 +176,35 @@ const GameTable = (props: {
           icon={faTimes}
         />
       )}
-      {turn === i &&
-        props.rules.canPlayMultiple &&
-        players === numberOfPlayers && (
-          <Button
-            noEffect
-            style={{
-              backgroundColor:
-                grouping && grouping.active ? "green" : "darkblue",
-            }}
-            className={`${classes.group}`}
-            onClick={() => {
-              if (grouping.active ) {
-                if (grouping.cards.length > 0) {
-                  handlePlayCard(
-                    initializeApp(firebaseConfig),
-                    grouping.cards,
-                    router.query.gameId,
-                    playerId,
-                    props.rules
-                  );
-                }
-                setGrouping({ active: false, cards: [] });
-              } else setGrouping({ active: true, cards: [] });
-            }}
-          >
-            {grouping.active
-              ? grouping.cards.length > 0
-                ? "Play"
-                : "Select"
-              : "Group"}
-          </Button>
-        )}
+      {turn === i && rules.canPlayMultiple && players === numberOfPlayers && (
+        <Button
+          noEffect
+          style={{
+            backgroundColor: grouping && grouping.active ? "green" : "darkblue",
+          }}
+          className={`${classes.group}`}
+          onClick={() => {
+            if (grouping.active) {
+              if (grouping.cards.length > 0) {
+                handlePlayCard(
+                  initializeApp(firebaseConfig),
+                  grouping.cards,
+                  router.query.gameId,
+                  playerId,
+                  rules
+                );
+              }
+              setGrouping({ active: false, cards: [] });
+            } else setGrouping({ active: true, cards: [] });
+          }}
+        >
+          {grouping.active
+            ? grouping.cards.length > 0
+              ? "Play"
+              : "Select"
+            : "Group"}
+        </Button>
+      )}
       {(!topCard || players < numberOfPlayers) && (
         <div className={`${classes.waiting}`}>
           <FontAwesomeIcon
@@ -232,11 +220,11 @@ const GameTable = (props: {
         <Fragment>
           <Hand
             selected={grouping.cards}
-            canPlayMultiple={props.rules.canPlayMultiple}
+            canPlayMultiple={rules.canPlayMultiple}
             onPlay={(card: ICard) => {
               if (grouping.active) {
                 handlePlayMultipleCards(card);
-              } else if (cardIsPlayable(card, topCard, take, props.rules)) {
+              } else if (cardIsPlayable(card, topCard, take, rules)) {
                 if (card.identifier === "+4" || card.identifier === "choose") {
                   setChooseColor(card);
                 } else {
@@ -245,7 +233,7 @@ const GameTable = (props: {
                     [card],
                     router.query.gameId,
                     playerId!,
-                    props.rules
+                    rules
                   );
                 }
               }
@@ -254,7 +242,7 @@ const GameTable = (props: {
             cards={cards[0]}
           />
           <Playground
-            rules={props.rules}
+            rules={rules}
             myTurn={i === turn}
             cantPlay={cantPlay}
             take={take}
