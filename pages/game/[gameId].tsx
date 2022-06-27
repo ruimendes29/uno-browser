@@ -5,8 +5,8 @@ import React from "react";
 import GameTable from "../../components/Game/GameTable";
 import { firebaseConfig } from "../../store/config";
 
-const GamePage = (props: { rules: any; }) => {
-  return <GameTable  rules={props.rules} />;
+const GamePage = (props: { rules: any }) => {
+  return <GameTable rules={props.rules} />;
 };
 
 export async function getStaticPaths() {
@@ -15,11 +15,12 @@ export async function getStaticPaths() {
   const roomsInfo = (await get(roomsRef)).val();
   const paths = [];
   for (const room in roomsInfo) {
+    console.log(room);
     paths.push({ params: { gameId: room } });
   }
   return {
-    fallback: false,
-    paths,
+    fallback: true,
+    paths
   };
 }
 
