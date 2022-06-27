@@ -3,6 +3,11 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  background-color: rgba(255,0,0,0.7);
+  border: solid 5px black;
+  padding: 4vw;
+  aspect-ratio: 1/1;
+  border-radius: 50%;
   .cards-wrapper {
     gap: 1rem;
     display: flex;

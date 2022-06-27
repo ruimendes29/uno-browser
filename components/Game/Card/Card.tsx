@@ -44,18 +44,17 @@ const Card = (props: {
   identifier: number | string;
   color?: string;
 }) => {
+  const handleCardClicked = () => {
+    if (props.onClick) {
+      props.onClick();
+    }
+  };
   const fromIdentifier = getFromIdentifier(props.identifier + "");
   const subIdentifier =
     props.identifier === "+4" ? getFromIdentifier("choose") : fromIdentifier;
   return (
     <div
-      onClick={
-        props.onClick
-          ? () => {
-              props.onClick();
-            }
-          : () => {}
-      }
+      onClick={handleCardClicked}
       style={{
         ...props.style,
         backgroundColor: `${props.color ? props.color : "black"}`,

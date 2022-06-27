@@ -1,13 +1,88 @@
-.button{
-    border: none;
-    background-color: darkblue;
-    color:white;
-    font-size: min(4vw,2rem);
-    width: min(50vw,500px);
-    padding: 1rem 0;
-    border-radius: 1rem;
-    cursor: pointer;
-    &:hover{
-        filter: brightness(150%);
+@keyframes slide-from-left {
+  0% {
+    opacity: 100%;
+    transform: translateX(-200%) translateY(-50%) rotate(0deg);
+  }
+  100% {
+    transform: translateX(0%) translateY(-50%) rotate(360deg);
+  }
+}
+
+@keyframes slide-from-right {
+  0% {
+    opacity: 100%;
+    transform: translateX(200%) translateY(-50%) rotate(0deg);
+  }
+  100% {
+    transform: translateX(0%) translateY(-50%) rotate(360deg);
+  }
+}
+
+.button {
+  border: none;
+  background-color: black;
+  outline: white solid 0.05em;
+  color: white;
+  overflow: hidden;
+  font-size: min(4vw, 2rem);
+  width: 100%;
+  padding: 1rem 0;
+  border-radius: 1rem;
+  cursor: pointer;
+  position: relative;
+  &:hover {
+    background-color: rgb(25, 25, 25);
+    & > .square.red {
+      opacity: 100%;
+      animation: slide-from-left 0.5s;
     }
+    & > .square.blue {
+      opacity: 100%;
+      animation: slide-from-left 0.5s;
+    }
+    & > .square.yellow {
+      opacity: 100%;
+      animation: slide-from-right 0.5s;
+    }
+    & > .square.green {
+      opacity: 100%;
+      animation: slide-from-right 0.5s;
+    }
+  }
+  .square {
+    position: absolute;
+    height: 33%;
+    aspect-ratio: 1/1;
+    // display: none;
+    border-radius: 20%;
+    border: 2px solid black;
+  }
+  .square.yellow {
+    opacity: 0;
+    transform-origin: center;
+    top: 50%;
+    right: 5%;
+    transform: translateY(-50%);
+  }
+  .square.green {
+    opacity: 0;
+    transform-origin: center;
+    top: 50%;
+    right: 13%;
+    transform: translateY(-50%);
+  }
+  .square.red {
+    opacity: 0;
+    transform-origin: center;
+    top: 50%;
+    left: 5%;
+    transform: translateY(-50%);
+  }
+  .square.blue {
+    opacity: 0;
+    transform-origin: center;
+    top: 50%;
+    left: 13%;
+    transform: translateY(-50%);
+  }
 }

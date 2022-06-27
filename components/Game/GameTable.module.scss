@@ -3,8 +3,26 @@
 .table {
   display: grid;
   height: 100vh;
-  grid-template-columns: 15% 70% 15%;
-  grid-template-rows: 12rem calc(100vh - 24rem) 12rem;
+  grid-template-columns: 11.2em calc(100vw - 22.4em) 11.2em;
+  grid-template-rows: 12em calc(100vh - 24em) 12em;
+  .leave{
+    width: 30%;
+    max-width: 50px;
+    align-self: center;
+    justify-self: center;
+    grid-column-start: 3;
+    height: fit-content;
+    cursor: pointer;
+
+  }
+  .group{
+    grid-column-start: 1;
+    grid-row-start: 3;
+    width: 80%;
+    height: fit-content;
+    align-self: center;
+    justify-self: center;
+  }
   &::after {
     content: "";
     margin: 1rem;
@@ -14,6 +32,7 @@
     border-radius: 50%;
     grid-column-start: 2;
     grid-row-start: 2;
+    border: solid 2px black;
     background-color: green;
   }
   .waiting {
@@ -32,7 +51,6 @@
   .my-hand {
     grid-column-start: 2;
     grid-row-start: 3;
-    background-color: green;
     & > * {
       &:hover {
         top: -10%;
@@ -49,7 +67,7 @@
 
     & > * {
       transform-origin: top right;
-      transform: rotate(-90deg) translate(0%, -85%);
+      transform: rotate(-90deg)translate(0%, -85%);
     }
   }
   .top-player {
@@ -70,6 +88,10 @@
     }
   }
   .playground {
+    &>*>*{
+      background-color: blue;
+      font-size: 0.7rem!important;
+    }
     grid-column-start: 2;
     grid-row-start: 2;
     align-self: center;

@@ -1,4 +1,5 @@
 .card {
+  font-size: 100%;
   width: 8em;
   height: 11.2em;
   display: flex;
@@ -10,6 +11,7 @@
   border: 8px solid white;
   border-radius: 0.5em;
   outline: black solid 2px;
+  cursor: pointer;
   outline-offset: -2px;
   .sub {
     position: absolute;

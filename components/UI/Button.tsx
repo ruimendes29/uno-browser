@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Fragment } from "react";
 import classes from "./Button.module.scss";
 
 const Button = (props: {
@@ -6,6 +6,7 @@ const Button = (props: {
   children: any;
   className?: string;
   style?: any;
+  noEffect?: boolean;
 }) => {
   return (
     <button
@@ -14,6 +15,26 @@ const Button = (props: {
       onClick={props.onClick}
     >
       {props.children}
+      {!props.noEffect && (
+        <Fragment>
+          <div
+            style={{ backgroundColor: "red" }}
+            className={`${classes.square} ${classes.red}`}
+          ></div>
+          <div
+            style={{ backgroundColor: "blue" }}
+            className={`${classes.square} ${classes.blue}`}
+          ></div>
+          <div
+            style={{ backgroundColor: "green" }}
+            className={`${classes.square} ${classes.green}`}
+          ></div>
+          <div
+            style={{ backgroundColor: "yellow" }}
+            className={`${classes.square} ${classes.yellow}`}
+          ></div>
+        </Fragment>
+      )}
     </button>
   );
 };

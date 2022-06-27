@@ -14,6 +14,9 @@ import { getDatabase, ref, set, get } from "firebase/database";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleNotch } from "@fortawesome/free-solid-svg-icons";
 import { setNewGame } from "../Game/GameUtils";
+import Logo from "../UI/Logo";
+import Modal from "../UI/Modal";
+import ChooseRules from "./ChooseRules";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -43,15 +46,11 @@ const Home = () => {
   const nameRef = useRef(null);
   //ref for room field
   const roomRef = useRef(null);
-
-  const [rules,setRules] = useState({
-    takeUntilPlay: true,
-    canPlayMultiple: false,
-    canPlayOverTake: false,
-    endWhenOneEnds: true,
-  })
+  //state for error in room name
+  const [error, setError] = useState(false);
 
   const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
 
   const router = useRouter();
 
@@ -109,11 +108,19 @@ const Home = () => {
     });
   }, [name, playerId]);
 
-  const handleCreateSession = async () => {
+  const [roomId, setRoomId] = useState("");
+
+  const handleCreateSession = async (
+    roomId: string,
+    rules: {
+      takeUntilPlay: boolean;
+      canPlayMultiple: boolean;
+      canPlayOverTake: boolean;
+      endWhenOneEnds: boolean;
+    }
+  ) => {
     setLoading(true);
     const db = getDatabase(app);
-
-    const roomId = Date.now().toString(36) + playerId;
     console.log(roomId);
     const gameRef = ref(db, `rooms/${roomId}`);
     const playerRef = ref(db, `players/${playerId}`);
@@ -122,7 +129,7 @@ const Home = () => {
       name: name,
       room: roomId,
     });
-    await setNewGame(initializeApp(firebaseConfig), roomId, playerId,rules);
+    await setNewGame(initializeApp(firebaseConfig), roomId, playerId, rules);
     await router.push("/game/" + roomId);
     setLoading(false);
   };
@@ -139,9 +146,12 @@ const Home = () => {
         name: name,
         room: room,
       });
-      await set(gameRef, { ...gameInfo, players: [...gameInfo.players, playerId] });
+      await set(gameRef, {
+        ...gameInfo,
+        players: [...gameInfo.players, playerId],
+      });
       await router.push("/game/" + room);
-    }
+    } else setError(true);
     setLoading(false);
   };
 
@@ -155,19 +165,40 @@ const Home = () => {
       )}
       {!loading && name && (
         <Fragment>
-          <div className={`${classes.welcome}`}>Welcome {name}</div>
-          <Button className={`${classes.btn}`} onClick={handleCreateSession}>
-            Create session
-          </Button>
-          <input placeholder="Enter room code" type="text" ref={roomRef} />
+          <Logo />
+          <h3 className={`${classes.message} ${error ? classes.error : ""}`}>
+            Room does not exist
+          </h3>
+          <input
+            onChange={() => {
+              if (error) {
+                setError(false);
+              }
+            }}
+            className={`${classes.ipt} ${error ? classes.invalid : ""}`}
+            placeholder="Enter room code"
+            type="text"
+            ref={roomRef}
+          />
           <Button
             className={`${classes.btn}`}
             onClick={() => {
               const roomInput: HTMLInputElement = roomRef.current!;
-              handleJoinSession(roomInput.value);
+              if (roomInput.value.trim() !== "") {
+                handleJoinSession(roomInput.value);
+              }
             }}
           >
             Join session
+          </Button>
+          <Button
+            className={`${classes.btn}`}
+            onClick={() => {
+              setRoomId(Date.now().toString(36) + playerId);
+              setShowModal(true);
+            }}
+          >
+            Create session
           </Button>
         </Fragment>
       )}
@@ -175,7 +206,7 @@ const Home = () => {
         <Fragment>
           <input
             placeholder="Enter your name"
-            className={`${classes.input}`}
+            className={`${classes.ipt}`}
             type="text"
             ref={nameRef}
           />
@@ -188,6 +219,26 @@ const Home = () => {
             Continue
           </Button>
         </Fragment>
+      )}
+      {showModal && (
+        <Modal
+          onClose={() => {
+            setShowModal(false);
+          }}
+        >
+          <ChooseRules
+            roomId={roomId}
+            onStart={(rules: {
+              takeUntilPlay: boolean;
+              canPlayMultiple: boolean;
+              canPlayOverTake: boolean;
+              endWhenOneEnds: boolean;
+            }) => {
+              setShowModal(false);
+              handleCreateSession(roomId, rules);
+            }}
+          />
+        </Modal>
       )}
     </div>
   );

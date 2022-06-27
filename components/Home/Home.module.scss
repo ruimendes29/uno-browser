@@ -1,12 +1,37 @@
 .home{
     height: 100vh;
     display: flex;
+    width: 50vw;
+    margin: 0 auto;
     flex-direction: column;
     gap:1rem;
     justify-content: center;
     align-items: center;
     .icon{
         font-size: min(10vw, 10rem);
+    }
+    .welcome{
+        font-size: min(10vw,10rem);
+    }
+    .message{
+        padding: 0;
+        margin: 0;
+        color:rgb(102, 0, 0);
+        align-self: flex-start;
+        opacity: 0;
+    }
+    .message.error{
+        opacity: 100%;
+    }
+    .ipt{
+        border: none;
+        padding: 1rem;
+        width: 100%;
+        font-size: min(4vw,1.5rem);
+    }
+    .ipt.invalid{
+        color:red;
+        border: 2px solid red;
     }
 }
 

@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100;300&display=swap');
+
 @keyframes upanddown {
   0% {
     transform: translateX(-50%) translateY(100%);
@@ -12,11 +14,16 @@
 
 html,
 body {
+  background-color: black;
+  outline: white solid 2vw;
+  outline-offset: -2vw;
+  border-radius: 2vw;
+  color:white;
   padding: 0;
   margin: 0;
-  font-size: min(2.5vw,16px);
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  font-size: min(2vmin,16px);
+  font-weight: 300;
+  font-family: 'Montserrat', sans-serif;
 }
 
 a {

@@ -60,7 +60,7 @@ const getNextTurn = (preTurn: number, direction: number, cards: ICard[]) => {
 
 export const handlePlayCard = (
   app: any,
-  playableCard: ICard,
+  playableCards: ICard[],
   gameId: any,
   playerId: string,
   rules: {
@@ -78,44 +78,47 @@ export const handlePlayCard = (
     if (preInfo.players[preInfo.turn] === playerId) {
       const index = preInfo.players.findIndex((el: string) => el === playerId);
       const newCards = [...preInfo.cards];
-      // remove the card from the hand of the player
-      newCards[index] = newCards[index].filter(
-        (c: any) => c.id !== playableCard.id
-      );
+
       let newTake = preInfo.take;
       let newDirection = preInfo.direction;
       let newTurn = getNextTurn(preInfo.turn, newDirection, preInfo.cards);
-      switch (playableCard.identifier) {
-        case "reverse":
-          newDirection *= -1;
-          break;
-        case "+2":
-          newTake += 2;
-          break;
-        case "+4":
-          newTake += 4;
-          break;
-        case "forbid":
-          newTurn = getNextTurn(newTurn, newDirection, preInfo.cards);
-          break;
-      }
-      console.log(newCards);
 
-      //condition when the game ends
-      let i: number = 0;
-      newCards.forEach((el) => {
-        if (!el || el.length === 0) i++;
-      });
-      if (
-        (rules.endWhenOneEnds && i === 1) ||
-        (!rules.endWhenOneEnds && i === 2 - 1)
-      ) {
-        setNewGame(app, gameId);
-      }
+      for (const playableCard of playableCards) {
+        // remove the card from the hand of the player
+        newCards[index] = newCards[index].filter(
+          (c: any) => c.id !== playableCard.id
+        );
+        switch (playableCard.identifier) {
+          case "reverse":
+            newDirection *= -1;
+            break;
+          case "+2":
+            newTake += 2;
+            break;
+          case "+4":
+            newTake += 4;
+            break;
+          case "forbid":
+            newTurn = getNextTurn(newTurn, newDirection, preInfo.cards);
+            break;
+        }
+        console.log(newCards);
 
+        //condition when the game ends
+        let i: number = 0;
+        newCards.forEach((el) => {
+          if (!el || el.length === 0) i++;
+        });
+        if (
+          (rules.endWhenOneEnds && i === 1) ||
+          (!rules.endWhenOneEnds && i === 2 - 1)
+        ) {
+          setNewGame(app, gameId);
+        }
+      }
       set(roomRef, {
         ...snapshot.val(),
-        top: playableCard,
+        top: playableCards[playableCards.length - 1],
         cards: newCards.map((el) => {
           if (!el) return [];
           else return el;
@@ -126,13 +129,13 @@ export const handlePlayCard = (
         playedCards: [
           ...(preInfo.playedCards ? preInfo.playedCards : []),
           preInfo.top,
+          ...playableCards.slice(0, playableCards.length - 1),
         ],
         turn: newTurn,
       });
     }
   });
 };
-
 
 export const doesNotHavePlayableCards = (
   cards: ICard[],
@@ -303,9 +306,12 @@ export const setNewGame = async (
   const db = getDatabase(app);
   const gameRef = ref(db, `rooms/${roomId}`);
   // shuffle the deck
-  const deck = Array.from(getDeck())
-    .map((el) => el[1])
-    .sort(() => Math.random() - 0.5);
+  let deck: ICard[] = [];
+  do {
+    deck = Array.from(getDeck())
+      .map((el) => el[1])
+      .sort(() => Math.random() - 0.5);
+  } while (deck[28].identifier === "+4" || deck[28].identifier === "choose");
   const gameInfo = await (await get(gameRef)).val();
 
   await set(gameRef, {

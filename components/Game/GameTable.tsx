@@ -15,12 +15,13 @@ import { initializeApp } from "firebase/app";
 import { firebaseConfig } from "../../store/config";
 import { getDatabase, onChildAdded, onValue, ref } from "firebase/database";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleNotch } from "@fortawesome/free-solid-svg-icons";
+import { faCircleNotch, faTimes } from "@fortawesome/free-solid-svg-icons";
 import ICard from "./Card/ICard";
 import Playground from "./Playground";
 import Modal from "../UI/Modal";
 import ChooseColor from "./ChooseColor/ChooseColor";
 import { getAuth, onAuthStateChanged, signInAnonymously } from "firebase/auth";
+import Button from "../UI/Button";
 
 const getCardsFromOther = (roomInfo: any, index: number, i: number) => {
   if (roomInfo.cards) {
@@ -28,7 +29,7 @@ const getCardsFromOther = (roomInfo: any, index: number, i: number) => {
       roomInfo.cards[(index + i) % roomInfo.cards.length];
     if (otherPlayerCards)
       return otherPlayerCards.map((c: any) => {
-        return {id:c.id, identifier: "back" };
+        return { id: c.id, identifier: "back" };
       });
     return [];
   } else return [];
@@ -55,11 +56,9 @@ const GameTable = (props: {
     endWhenOneEnds: boolean;
   };
 }) => {
-
   const app = initializeApp(firebaseConfig);
-  onAuthStateChanged(getAuth(app),(user) => {
-    if (!user)
-    {
+  onAuthStateChanged(getAuth(app), (user) => {
+    if (!user) {
       signInAnonymously(getAuth(app));
     }
   });
@@ -73,6 +72,8 @@ const GameTable = (props: {
   const [turn, setTurn] = useState(-1);
   const [playerId, setPlayerId] = useState("");
   const [take, setTake] = useState(-1);
+  const [grouping, setGrouping]: [{ active: boolean; cards: ICard[] }, any] =
+    useState({ active: false, cards: [] });
   const [chooseColor, setChooseColor]: [ICard | undefined, any] =
     useState(undefined);
   console.log(rules);
@@ -128,12 +129,38 @@ const GameTable = (props: {
     const card = chooseColor!;
     handlePlayCard(
       initializeApp(firebaseConfig),
-      { id: card.id, identifier: card.identifier, color },
+      [{ id: card.id, identifier: card.identifier, color }],
       router.query.gameId,
       playerId!,
       props.rules
     );
     setChooseColor(false);
+  };
+
+  const handlePlayMultipleCards = (card: ICard) => {
+    setGrouping((oldGroup: { active: boolean; cards: ICard[] }) => {
+      if (oldGroup.cards.includes(card))
+        return {
+          ...oldGroup,
+          cards:
+            oldGroup.cards[0] === card
+              ? []
+              : oldGroup.cards.filter((el) => el != card),
+        };
+      if (
+        oldGroup.cards.length === 0 &&
+        cardIsPlayable(card, topCard, take, props.rules)
+      ) {
+        return { ...oldGroup, cards: [card] };
+      }
+      if (
+        oldGroup.cards.length > 0 &&
+        card.identifier === oldGroup.cards[0].identifier
+      ) {
+        return { ...oldGroup, cards: [...oldGroup.cards, card] };
+      }
+      return oldGroup;
+    });
   };
 
   return (
@@ -145,7 +172,7 @@ const GameTable = (props: {
       }`}
     >
       {playerId && (
-        <button
+        <FontAwesomeIcon
           onClick={async () => {
             await exitRoom(
               initializeApp(firebaseConfig),
@@ -154,10 +181,42 @@ const GameTable = (props: {
             );
             await router.push("/");
           }}
-        >
-          Leave Room
-        </button>
+          className={`${classes.leave}`}
+          icon={faTimes}
+        />
       )}
+      {turn === i &&
+        props.rules.canPlayMultiple &&
+        players === numberOfPlayers && (
+          <Button
+            noEffect
+            style={{
+              backgroundColor:
+                grouping && grouping.active ? "green" : "darkblue",
+            }}
+            className={`${classes.group}`}
+            onClick={() => {
+              if (grouping.active ) {
+                if (grouping.cards.length > 0) {
+                  handlePlayCard(
+                    initializeApp(firebaseConfig),
+                    grouping.cards,
+                    router.query.gameId,
+                    playerId,
+                    props.rules
+                  );
+                }
+                setGrouping({ active: false, cards: [] });
+              } else setGrouping({ active: true, cards: [] });
+            }}
+          >
+            {grouping.active
+              ? grouping.cards.length > 0
+                ? "Play"
+                : "Select"
+              : "Group"}
+          </Button>
+        )}
       {(!topCard || players < numberOfPlayers) && (
         <div className={`${classes.waiting}`}>
           <FontAwesomeIcon
@@ -172,14 +231,18 @@ const GameTable = (props: {
       {topCard && players === numberOfPlayers && (
         <Fragment>
           <Hand
+            selected={grouping.cards}
+            canPlayMultiple={props.rules.canPlayMultiple}
             onPlay={(card: ICard) => {
-              if (cardIsPlayable(card, topCard, take, props.rules)) {
+              if (grouping.active) {
+                handlePlayMultipleCards(card);
+              } else if (cardIsPlayable(card, topCard, take, props.rules)) {
                 if (card.identifier === "+4" || card.identifier === "choose") {
                   setChooseColor(card);
                 } else {
                   handlePlayCard(
                     initializeApp(firebaseConfig),
-                    card,
+                    [card],
                     router.query.gameId,
                     playerId!,
                     props.rules

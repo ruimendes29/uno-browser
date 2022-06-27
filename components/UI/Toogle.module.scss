@@ -1,0 +1,29 @@
+.toogle{
+    width: 3.5rem;
+    height: 2rem;
+    margin-right: 1rem;
+    background-color: white;
+    cursor: pointer;
+    position: relative;
+    border-radius: 3rem;
+    &::after{
+
+        transition: all 0.3s ease-in-out;
+        content: "";
+        position: absolute;
+        height: 1.5rem;
+        aspect-ratio: 1/1;
+        border-radius: 50%;
+        left: 0.25rem;
+        background-color: rgb(129, 129, 129);
+        top:50%;
+        transform: translate(0,-50%);
+    }
+}
+
+.toogle.selected{
+    &::after{
+        background-color: rgb(63, 208, 63);
+        transform: translate(1.25rem,-50%);
+    }
+}

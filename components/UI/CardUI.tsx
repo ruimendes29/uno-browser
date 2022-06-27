@@ -7,7 +7,7 @@ const CardUI = (props: {
   title?: string;
 }) => {
   return (
-    <div className={`${props.className} ${classes.card}`}>
+    <div onClick={(e)=>{e.stopPropagation()}} className={`${props.className} ${classes.card}`}>
       {props.title ? (
         <div className={`${classes.title}`}>{props.title}</div>
       ) : (
