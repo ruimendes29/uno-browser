@@ -42,7 +42,7 @@ const turnToRelativePos = (myIndex: number, currentTurn: number) => {
   );
 };
 
-const numberOfPlayers = 2;
+const numberOfPlayers = 4;
 
 const rules = {
   takeUntilPlay: false,

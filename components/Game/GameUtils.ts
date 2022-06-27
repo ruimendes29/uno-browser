@@ -51,9 +51,9 @@ export const cardIsPlayable = (
 };
 
 const getNextTurn = (preTurn: number, direction: number, cards: ICard[]) => {
-  let nextTurn = (((preTurn + direction) % 2) + 2) % 2;
+  let nextTurn = (((preTurn + direction) % 4) + 4) % 4;
   while (!cards[nextTurn]) {
-    nextTurn = (((nextTurn + direction) % 2) + 2) % 2;
+    nextTurn = (((nextTurn + direction) % 4) + 4) % 4;
   }
   return nextTurn;
 };
@@ -111,7 +111,7 @@ export const handlePlayCard = (
         });
         if (
           (rules.endWhenOneEnds && i === 1) ||
-          (!rules.endWhenOneEnds && i === 2 - 1)
+          (!rules.endWhenOneEnds && i === 3)
         ) {
           setNewGame(app, gameId);
         }
