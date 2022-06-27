@@ -32,7 +32,7 @@ export async function getStaticProps(context: any) {
     props: {
       rules: gameInfo.rules,
     },
-    revalidate: 1,
+    revalidate: 2,
   };
 }
 
