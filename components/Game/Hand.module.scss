@@ -5,14 +5,22 @@
     height: 11.2em;
     transform-origin: center;
     background-color: black;
+    .group{
+        padding: 0;
+        position: absolute;
+        width: 20vw;
+        top:-2em;
+        left: -6px;
+        z-index: 9999;
+    }
 }
 
 .hand.turn{
     &::after{
         position: absolute;
-        top: -50px;
+        top: -20%;
         content: "";
-        width: 20px;
+        width: 2vw;
         aspect-ratio: 1/1;
         left: 50%;
         transform: translateX(-50%);

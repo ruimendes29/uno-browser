@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
+import Button from "../UI/Button";
 import Card from "./Card/Card";
 import ICard from "./Card/ICard";
 import classes from "./Hand.module.scss";
@@ -8,8 +9,10 @@ const Hand = (props: {
   onPlay?: Function;
   className?: string;
   mine?: boolean;
-  myTurn:boolean;
+  myTurn: boolean;
   canPlayMultiple?: boolean;
+  clickedGroup?:any;
+  grouping?:{active:boolean,cards:ICard[]}
   selected?: ICard[];
   style?: any;
 }) => {
@@ -53,10 +56,31 @@ const Hand = (props: {
     }
   }, [updateTranslateValue, props.cards]);
 
-  
-
   return (
-    <div style={props.style} className={`${props.className} ${props.myTurn?classes.turn:''} ${classes.hand}`}>
+    <div
+      style={props.style}
+      className={`${props.className} ${props.myTurn ? classes.turn : ""} ${
+        classes.hand
+      }`}
+    >
+      {props.myTurn && props.canPlayMultiple &&
+        <Button
+          noEffect
+          style={{
+            backgroundColor: props.grouping && props.grouping.active ? "green" : "darkblue",
+          }}
+          className={`${classes.group}`}
+          onClick={() => {
+            props.clickedGroup();
+          }}
+        >
+          {props.grouping!.active
+            ? props.grouping!.cards.length > 0
+              ? "Play"
+              : "Select"
+            : "Group"}
+        </Button>
+      }
       {props.cards &&
         props.cards.map((card: ICard, index: number) => {
           return (
@@ -66,7 +90,7 @@ const Hand = (props: {
               }}
               style={{
                 ...(props.selected && props.selected.includes(card)
-                  ? { top: "-50%" }
+                  ? { top: "-10%" }
                   : {}),
                 position: "absolute",
                 zIndex: index,

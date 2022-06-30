@@ -16,14 +16,6 @@
     cursor: pointer;
 
   }
-  .group{
-    grid-column-start: 1;
-    grid-row-start: 3;
-    width: 80%;
-    height: fit-content;
-    align-self: center;
-    justify-self: center;
-  }
   .waiting {
     font-size: min(10vw, 10rem);
     grid-column-start: 2;

@@ -68,6 +68,7 @@ export const handlePlayCard = (
     canPlayMultiple: boolean;
     canPlayOverTake: boolean;
     endWhenOneEnds: boolean;
+    numberOfPlayers: number;
   }
 ) => {
   const db = getDatabase(app);
@@ -102,7 +103,6 @@ export const handlePlayCard = (
             newTurn = getNextTurn(newTurn, newDirection, preInfo.cards);
             break;
         }
-        
 
         //condition when the game ends
         let i: number = 0;
@@ -111,7 +111,7 @@ export const handlePlayCard = (
         });
         if (
           (rules.endWhenOneEnds && i === 1) ||
-          (!rules.endWhenOneEnds && i === 3)
+          (!rules.endWhenOneEnds && i === rules.numberOfPlayers - 1)
         ) {
           setNewGame(app, gameId);
         }
@@ -177,7 +177,7 @@ export const drawFromDeck = (
       const index = preInfo.players.findIndex((el: string) => el === playerId);
       const newCards = [...preInfo.cards];
       const deck = preInfo.deck;
-      
+
       const newCard: ICard = preInfo.deck.pop();
       newCards[index].push(newCard);
       if (preInfo.deck.length === 0) {
@@ -219,7 +219,7 @@ export const handleTake = (
       const index = preInfo.players.findIndex((el: string) => el === playerId);
       const newCards = [...preInfo.cards];
       const deck = preInfo.deck;
-      
+
       while (take > 0) {
         newCards[index].push(preInfo.deck.pop());
         take--;
@@ -279,7 +279,6 @@ const getDeck = () => {
   const ret = new Map();
   let id = 0;
   for (const color of colors) {
-    
     for (const non_special of non_specials) {
       ret.set(id, { identifier: non_special, color, id: id++ });
       ret.set(id, { identifier: non_special, color, id: id++ });

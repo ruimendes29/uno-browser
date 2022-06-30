@@ -151,6 +151,21 @@ const GameTable = () => {
     });
   };
 
+  const handleGroupClicked = () => {
+    if (grouping.active) {
+      if (grouping.cards.length > 0) {
+        handlePlayCard(
+          initializeApp(firebaseConfig),
+          grouping.cards,
+          router.query.gameId,
+          playerId,
+          rules
+        );
+      }
+      setGrouping({ active: false, cards: [] });
+    } else setGrouping({ active: true, cards: [] });
+  };
+
   return (
     <div
       className={`${classes.table} ${
@@ -171,35 +186,7 @@ const GameTable = () => {
           icon={faTimes}
         />
       )}
-      {turn === i && rules.canPlayMultiple && players === numberOfPlayers && (
-        <Button
-          noEffect
-          style={{
-            backgroundColor: grouping && grouping.active ? "green" : "darkblue",
-          }}
-          className={`${classes.group}`}
-          onClick={() => {
-            if (grouping.active) {
-              if (grouping.cards.length > 0) {
-                handlePlayCard(
-                  initializeApp(firebaseConfig),
-                  grouping.cards,
-                  router.query.gameId,
-                  playerId,
-                  rules
-                );
-              }
-              setGrouping({ active: false, cards: [] });
-            } else setGrouping({ active: true, cards: [] });
-          }}
-        >
-          {grouping.active
-            ? grouping.cards.length > 0
-              ? "Play"
-              : "Select"
-            : "Group"}
-        </Button>
-      )}
+
       {(!topCard || players < numberOfPlayers) && (
         <div className={`${classes.waiting}`}>
           <FontAwesomeIcon
@@ -223,6 +210,8 @@ const GameTable = () => {
           />
           <Hand
             mine
+            grouping={grouping}
+            clickedGroup={handleGroupClicked}
             myTurn={currentTurn === 0}
             selected={grouping.cards}
             canPlayMultiple={rules.canPlayMultiple}
@@ -249,11 +238,11 @@ const GameTable = () => {
               height: `11.2em`,
             }}
             className={`${classes["my-hand"]}`}
-            cards={[...cards[0]]}
+            cards={[...(cards[0] ? cards[0] : [])]}
           />
           {cards.slice(1).map((handCards, index) => (
             <Hand
-              myTurn={currentTurn === (index+1)}
+              myTurn={currentTurn === index + 1}
               cards={handCards}
               key={index}
               style={{
