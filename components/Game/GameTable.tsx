@@ -236,6 +236,7 @@ const GameTable = () => {
               ...angleToPosition(-Math.PI / 2),
               width: `80vw`,
               height: `11.2em`,
+              backgroundColor:"black"
             }}
             className={`${classes["my-hand"]}`}
             cards={[...(cards[0] ? cards[0] : [])]}
