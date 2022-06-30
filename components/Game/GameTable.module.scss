@@ -3,6 +3,7 @@
 .table {
   display: grid;
   height: 100vh;
+  position: relative;
   grid-template-columns: 11.2em calc(100vw - 22.4em) 11.2em;
   grid-template-rows: 12em calc(100vh - 24em) 12em;
   .leave{
@@ -23,18 +24,6 @@
     align-self: center;
     justify-self: center;
   }
-  &::after {
-    content: "";
-    margin: 1rem;
-    width: max(1vw, 15px);
-    height: max(1vw, 15px);
-    display: block;
-    border-radius: 50%;
-    grid-column-start: 2;
-    grid-row-start: 2;
-    border: solid 2px black;
-    background-color: green;
-  }
   .waiting {
     font-size: min(10vw, 10rem);
     grid-column-start: 2;
@@ -49,13 +38,8 @@
   }
 
   .my-hand {
-    grid-column-start: 2;
-    grid-row-start: 3;
-    & > * {
-      &:hover {
-        top: -10%;
-      }
-    }
+    position: absolute;
+    outline: 10px solid white;
   }
 
   .left-player {
@@ -106,27 +90,3 @@
   }
 }
 
-.table.turn_0 {
-  &::after {
-    align-self: flex-end;
-    justify-self: center;
-  }
-}
-.table.turn_3 {
-  &::after {
-    align-self: center;
-    justify-self: flex-start;
-  }
-}
-.table.turn_2 {
-  &::after {
-    align-self: flex-start;
-    justify-self: center;
-  }
-}
-.table.turn_1 {
-  &::after {
-    align-self: center;
-    justify-self: flex-end;
-  }
-}

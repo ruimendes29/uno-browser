@@ -15,7 +15,7 @@ const GamePage = () => {
 //   const roomsInfo = (await get(roomsRef)).val();
 //   const paths = [];
 //   for (const room in roomsInfo) {
-//     console.log(room);
+//     
 //     paths.push({ params: { gameId: room } });
 //   }
 //   return {

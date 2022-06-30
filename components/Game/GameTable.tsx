@@ -22,6 +22,7 @@ import Modal from "../UI/Modal";
 import ChooseColor from "./ChooseColor/ChooseColor";
 import { getAuth, onAuthStateChanged, signInAnonymously } from "firebase/auth";
 import Button from "../UI/Button";
+import { angleToPosition, turnToRelativePos } from "./PositionUtils";
 
 const getCardsFromOther = (roomInfo: any, index: number, i: number) => {
   if (roomInfo.cards) {
@@ -35,15 +36,6 @@ const getCardsFromOther = (roomInfo: any, index: number, i: number) => {
   } else return [];
 };
 
-const turnToRelativePos = (myIndex: number, currentTurn: number) => {
-  return (
-    (((currentTurn - myIndex) % numberOfPlayers) + numberOfPlayers) %
-    numberOfPlayers
-  );
-};
-
-const numberOfPlayers = 4;
-
 const GameTable = () => {
   const app = initializeApp(firebaseConfig);
   onAuthStateChanged(getAuth(app), (user) => {
@@ -53,7 +45,7 @@ const GameTable = () => {
   });
 
   const router = useRouter();
-  const [cards, setCards] = useState([[], [], [], []]);
+  const [cards, setCards] = useState([]);
   const [players, setPlayers] = useState(1);
   const [deck, setDeck] = useState([]);
   const [topCard, setTopCard]: [any, Function] = useState(undefined);
@@ -66,8 +58,11 @@ const GameTable = () => {
   const [chooseColor, setChooseColor]: [ICard | undefined, any] =
     useState(undefined);
   const [rules, setRules]: [any, any] = useState({});
-  console.log(rules);
+  const numberOfPlayers = rules.numberOfPlayers;
 
+  const currentTurn = turnToRelativePos(i, turn, numberOfPlayers);
+
+  console.log(currentTurn);
   useEffect(() => {
     setPlayerId(localStorage.getItem("player")!);
     if (router.query.gameId) {
@@ -99,16 +94,18 @@ const GameTable = () => {
             setTake(newRoomInfo.take);
           }
           setRules;
-          setCards([
-            newRoomInfo.cards[index],
-            getCardsFromOther(newRoomInfo, index, 1),
-            getCardsFromOther(newRoomInfo, index, 2),
-            getCardsFromOther(newRoomInfo, index, 3),
-          ]);
+          setCards(
+            newRoomInfo.cards.map((hand: ICard[], i: number) => {
+              if (i === 0) {
+                return newRoomInfo.cards[index];
+              }
+              return getCardsFromOther(newRoomInfo, index, i);
+            })
+          );
         }
       });
     }
-  }, [i, router.query.gameId, turn, players, take, playerId]);
+  }, [i, router.query.gameId, turn, players, take, playerId, numberOfPlayers]);
 
   const cantPlay = useMemo(
     () =>
@@ -157,9 +154,7 @@ const GameTable = () => {
   return (
     <div
       className={`${classes.table} ${
-        players === numberOfPlayers
-          ? classes["turn_" + turnToRelativePos(i, turn)]
-          : classes["no-players"]
+        players === numberOfPlayers ? "" : classes["no-players"]
       }`}
     >
       {playerId && (
@@ -218,7 +213,17 @@ const GameTable = () => {
       )}
       {topCard && players === numberOfPlayers && (
         <Fragment>
+          <Playground
+            rules={rules}
+            myTurn={i === turn}
+            cantPlay={cantPlay}
+            take={take}
+            topCard={topCard}
+            className={`${classes.playground}`}
+          />
           <Hand
+            mine
+            myTurn={currentTurn === 0}
             selected={grouping.cards}
             canPlayMultiple={rules.canPlayMultiple}
             onPlay={(card: ICard) => {
@@ -238,28 +243,25 @@ const GameTable = () => {
                 }
               }
             }}
-            className={` ${classes["my-hand"]}`}
-            cards={cards[0]}
+            style={{
+              ...angleToPosition(-Math.PI / 2),
+              width: `80vw`,
+              height: `11.2em`,
+            }}
+            className={`${classes["my-hand"]}`}
+            cards={[...cards[0]]}
           />
-          <Playground
-            rules={rules}
-            myTurn={i === turn}
-            cantPlay={cantPlay}
-            take={take}
-            topCard={topCard}
-            className={`${classes.playground}`}
-          />
-          <Hand
-            vertical
-            className={` ${classes["left-player"]}`}
-            cards={cards[1]}
-          />
-          <Hand className={` ${classes["top-player"]}`} cards={cards[2]} />
-          <Hand
-            vertical
-            className={` ${classes["right-player"]}`}
-            cards={cards[3]}
-          />
+          {cards.slice(1).map((handCards, index) => (
+            <Hand
+              myTurn={currentTurn === (index+1)}
+              cards={handCards}
+              key={index}
+              style={{
+                ...angleToPosition(-Math.PI / 2 + (Math.PI * 2) / cards.length),
+              }}
+            />
+          ))}
+
           {chooseColor && (
             <Modal>
               <ChooseColor

@@ -61,7 +61,7 @@ const Home = () => {
       const p = localStorage.getItem("player");
 
       if (p) {
-        console.log(p);
+        
         const db = getDatabase(app);
         const playerRef = ref(db, `players/${p}`);
         const playerInfo = (await get(playerRef)).val();
@@ -73,7 +73,7 @@ const Home = () => {
       } else {
         setName(name!);
         await signInAnonymously(auth).catch((error) => {
-          console.log(error);
+          
         });
       }
 
@@ -92,7 +92,7 @@ const Home = () => {
     // add a listener to check for auth changes and add the new user to the database if necessary
     onAuthStateChanged(auth, (user) => {
       if (user && !localStorage.getItem("player") && name) {
-        console.log("tem user");
+        
         setPlayerId(user.uid);
         localStorage.setItem("player", playerId);
         const db = getDatabase(app);
@@ -117,11 +117,12 @@ const Home = () => {
       canPlayMultiple: boolean;
       canPlayOverTake: boolean;
       endWhenOneEnds: boolean;
+      numberOfPlayers: number
     }
   ) => {
     setLoading(true);
     const db = getDatabase(app);
-    console.log(roomId);
+    
     const gameRef = ref(db, `rooms/${roomId}`);
     const playerRef = ref(db, `players/${playerId}`);
     await set(playerRef, {
@@ -233,6 +234,7 @@ const Home = () => {
               canPlayMultiple: boolean;
               canPlayOverTake: boolean;
               endWhenOneEnds: boolean;
+              numberOfPlayers: number;
             }) => {
               setShowModal(false);
               handleCreateSession(roomId, rules);

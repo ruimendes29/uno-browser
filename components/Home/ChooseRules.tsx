@@ -1,4 +1,4 @@
-import { faCopy } from "@fortawesome/free-solid-svg-icons";
+import { faCopy, faMinus, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useState } from "react";
 import Button from "../UI/Button";
@@ -6,12 +6,22 @@ import CardUI from "../UI/CardUI";
 import Toogle from "../UI/Toogle";
 import classes from "./ChooseRules.module.scss";
 
-const ChooseRules = (props: { roomId: string; onStart: any }) => {
+const ChooseRules = (props: {
+  roomId: string;
+  onStart: (rules: {
+    takeUntilPlay: boolean;
+    canPlayMultiple: boolean;
+    canPlayOverTake: boolean;
+    endWhenOneEnds: boolean;
+    numberOfPlayers: number;
+  }) => void;
+}) => {
   const [canPlayMultiple, setCanPlayMultiple] = useState(false);
   const [takeUntilPlay, setTakeUntilPlay] = useState(false);
   const [canPlayOverTake, setCanPlayOverTake] = useState(false);
   const [endWhenOneEnds, setEndWhenOneEnds] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [numberOfPlayers, setNumberOfPlayers] = useState(4);
   return (
     <CardUI title="Choose the rules">
       <div className={`${classes.rule}`}>
@@ -56,6 +66,36 @@ const ChooseRules = (props: { roomId: string; onStart: any }) => {
         />
         <h3 className={`${classes.text}`}>Game ends when one player ends</h3>
       </div>
+      <div className={`${classes.players}`}>
+        <h3>Select the number of players</h3>
+        <div className={`${classes["set-players"]}`}>
+          <FontAwesomeIcon
+            onClick={() => {
+              setNumberOfPlayers((oldPlayers) => {
+                if (oldPlayers > 2) {
+                  return --oldPlayers;
+                }
+                return oldPlayers;
+              });
+            }}
+            className={`${classes.icon}`}
+            icon={faMinus}
+          />
+          <h3 className={`${classes.number}`}>{numberOfPlayers}</h3>
+          <FontAwesomeIcon
+            onClick={() => {
+              setNumberOfPlayers((oldPlayers) => {
+                if (oldPlayers < 8) {
+                  return ++oldPlayers;
+                }
+                return oldPlayers;
+              });
+            }}
+            className={`${classes.icon}`}
+            icon={faPlus}
+          />
+        </div>
+      </div>
       <div className={`${classes.code}`}>
         <div className={`${classes.room}`}> {props.roomId}</div>
 
@@ -89,6 +129,7 @@ const ChooseRules = (props: { roomId: string; onStart: any }) => {
             canPlayMultiple,
             canPlayOverTake,
             endWhenOneEnds,
+            numberOfPlayers,
           });
         }}
       >

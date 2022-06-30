@@ -102,7 +102,7 @@ export const handlePlayCard = (
             newTurn = getNextTurn(newTurn, newDirection, preInfo.cards);
             break;
         }
-        console.log(newCards);
+        
 
         //condition when the game ends
         let i: number = 0;
@@ -177,7 +177,7 @@ export const drawFromDeck = (
       const index = preInfo.players.findIndex((el: string) => el === playerId);
       const newCards = [...preInfo.cards];
       const deck = preInfo.deck;
-      console.log(deck);
+      
       const newCard: ICard = preInfo.deck.pop();
       newCards[index].push(newCard);
       if (preInfo.deck.length === 0) {
@@ -219,7 +219,7 @@ export const handleTake = (
       const index = preInfo.players.findIndex((el: string) => el === playerId);
       const newCards = [...preInfo.cards];
       const deck = preInfo.deck;
-      console.log(deck);
+      
       while (take > 0) {
         newCards[index].push(preInfo.deck.pop());
         take--;
@@ -279,7 +279,7 @@ const getDeck = () => {
   const ret = new Map();
   let id = 0;
   for (const color of colors) {
-    console.log(color);
+    
     for (const non_special of non_specials) {
       ret.set(id, { identifier: non_special, color, id: id++ });
       ret.set(id, { identifier: non_special, color, id: id++ });
@@ -301,32 +301,43 @@ export const setNewGame = async (
     canPlayMultiple: boolean;
     canPlayOverTake: boolean;
     endWhenOneEnds: boolean;
+    numberOfPlayers: number;
   }
 ) => {
   const db = getDatabase(app);
   const gameRef = ref(db, `rooms/${roomId}`);
   // shuffle the deck
   let deck: ICard[] = [];
+  const gameInfo = await (await get(gameRef)).val();
+  const players = rules
+    ? rules.numberOfPlayers
+    : gameInfo.rules.numberOfPlayers;
   do {
     deck = Array.from(getDeck())
       .map((el) => el[1])
       .sort(() => Math.random() - 0.5);
-  } while (deck[28].identifier === "+4" || deck[28].identifier === "choose");
-  const gameInfo = await (await get(gameRef)).val();
+  } while (
+    deck[7 * players].identifier === "+4" ||
+    deck[7 * players].identifier === "choose"
+  );
+
+  // deal the cards
+  const cards: ICard[][] = [];
+  const numberOfCardsPerPlayer = 7;
+  for (let i = 0; i < players; i++) {
+    cards.push(
+      deck.slice(i * numberOfCardsPerPlayer, (i + 1) * numberOfCardsPerPlayer)
+    );
+  }
 
   await set(gameRef, {
     id: roomId,
     players: gameInfo !== null ? gameInfo.players : [playerId],
     // distribute 7 cards for each player
-    cards: [
-      deck.slice(0, 7),
-      deck.slice(7, 14),
-      deck.slice(14, 21),
-      deck.slice(21, 28),
-    ],
+    cards,
     // assign the rest to the deck
-    deck: deck.slice(29),
-    top: deck[28],
+    deck: deck.slice(7 * players + 1),
+    top: deck[7 * players],
     turn: 0,
     take: 0,
     rules: gameInfo !== null ? gameInfo.rules : rules!,

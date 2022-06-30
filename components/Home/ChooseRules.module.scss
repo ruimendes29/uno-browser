@@ -12,6 +12,34 @@
     white-space: nowrap;
   }
 }
+
+.players{
+  display: flex;
+  justify-content: space-between;
+  .set-players{
+    width: 15%;
+    display: flex;
+    gap: 2%;
+    justify-content: center;
+    align-items: center;
+    .icon{
+      padding: 1%;
+      aspect-ratio: 1/1;
+      background-color: rgb(129, 129, 129);
+      border-radius: 50%;
+      cursor: pointer;
+    }
+  
+    h3{
+      margin: 0;
+      padding: 0;
+      width: 100%;
+    }
+  
+  }
+}
+
+
 .code {
   border: 2px solid white;
   border-radius: 0.25vw;

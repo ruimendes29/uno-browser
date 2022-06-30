@@ -7,9 +7,11 @@ const Hand = (props: {
   cards: any[];
   onPlay?: Function;
   className?: string;
-  vertical?: boolean;
+  mine?: boolean;
+  myTurn:boolean;
   canPlayMultiple?: boolean;
   selected?: ICard[];
+  style?: any;
 }) => {
   const [translateValue, setTranslateValue] = useState(0);
 
@@ -21,23 +23,19 @@ const Hand = (props: {
       );
       const cardWidth = 8 * em1;
       const cardHeight = 11.2 * em1;
-      const handSize = props.vertical
-        ? Math.floor(window.innerHeight - 22.4 * em1)
-        : Math.floor(window.innerWidth - 24 * em1);
-      const spaceForOtherCards =
-        handSize - (props.vertical ? cardHeight : cardWidth);
+      const handSize = !props.mine
+        ? 0.6 * Math.min(window.innerHeight, window.innerWidth)
+        : 0.8 * window.innerWidth;
+      const spaceForOtherCards = handSize - cardWidth;
       const otherCards = cardsInHand - 1;
-      const numberOfCards =
-        spaceForOtherCards / (props.vertical ? cardHeight : cardWidth);
+      const numberOfCards = spaceForOtherCards / cardWidth;
       const tv =
         otherCards > numberOfCards
           ? spaceForOtherCards / otherCards
-          : props.vertical
-          ? cardHeight
           : cardWidth;
       setTranslateValue(Math.ceil(tv));
     },
-    [props.vertical]
+    [props.mine]
   );
 
   const handlePlayedCard = (card: ICard) => {
@@ -55,8 +53,10 @@ const Hand = (props: {
     }
   }, [updateTranslateValue, props.cards]);
 
+  
+
   return (
-    <div className={`${props.className} ${classes.hand}`}>
+    <div style={props.style} className={`${props.className} ${props.myTurn?classes.turn:''} ${classes.hand}`}>
       {props.cards &&
         props.cards.map((card: ICard, index: number) => {
           return (
@@ -70,19 +70,7 @@ const Hand = (props: {
                   : {}),
                 position: "absolute",
                 zIndex: index,
-                ...(index < props.cards.length - 1
-                  ? {
-                      ...(props.vertical
-                        ? {
-                            top: Math.floor(translateValue * index),
-                          }
-                        : { left: Math.floor(translateValue * index) + "px" }),
-                    }
-                  : {
-                      ...(props.vertical
-                        ? { top: Math.floor(translateValue * index) }
-                        : { left: Math.floor(translateValue * index) + "px" }),
-                    }),
+                left: Math.floor(translateValue * index) + "px",
               }}
               key={card.id + "_" + card.identifier + "_" + card.color}
               identifier={card.identifier}

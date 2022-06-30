@@ -1,3 +1,25 @@
 .hand{
-    position: relative;
+    position: absolute;
+    transition: all 1s;
+    width: 60vmin;
+    height: 11.2em;
+    transform-origin: center;
+    background-color: black;
+}
+
+.hand.turn{
+    &::after{
+        position: absolute;
+        top: -50px;
+        content: "";
+        width: 20px;
+        aspect-ratio: 1/1;
+        left: 50%;
+        transform: translateX(-50%);
+        border-radius: 50%;
+        background: linear-gradient(lightgreen,10%,green);
+        border: 1px solid lightgray;
+        box-shadow: 0 0 9px 0px white;
+
+    }
 }
