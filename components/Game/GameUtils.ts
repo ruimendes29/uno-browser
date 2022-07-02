@@ -113,7 +113,7 @@ export const handlePlayCard = (
           (rules.endWhenOneEnds && i === 1) ||
           (!rules.endWhenOneEnds && i === rules.numberOfPlayers - 1)
         ) {
-          setNewGame(app, gameId);
+          setNewGame(app, gameId,undefined,preInfo.rules);
         }
       }
       set(roomRef, {

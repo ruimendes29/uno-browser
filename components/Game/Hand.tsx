@@ -15,6 +15,7 @@ const Hand = (props: {
   grouping?:{active:boolean,cards:ICard[]}
   selected?: ICard[];
   style?: any;
+  name:string
 }) => {
   const [translateValue, setTranslateValue] = useState(0);
 
@@ -63,6 +64,7 @@ const Hand = (props: {
         classes.hand
       }`}
     >
+      <h1 className={`${classes.name}`}>{props.name}</h1>
       {props.myTurn && props.canPlayMultiple &&
         <Button
           noEffect

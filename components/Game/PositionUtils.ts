@@ -39,3 +39,10 @@ export const turnToRelativePos = (myIndex: number, currentTurn: number, numberOf
     numberOfPlayers
   );
 };
+
+export const getRelativeIndex = (myIndex:number,jump:number,numberOfPlayers:number) => {
+  return (
+    ((( myIndex+jump) % numberOfPlayers) + numberOfPlayers) %
+    numberOfPlayers
+  );
+}

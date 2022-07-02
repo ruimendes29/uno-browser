@@ -13,7 +13,13 @@ import {
 } from "./GameUtils";
 import { initializeApp } from "firebase/app";
 import { firebaseConfig } from "../../store/config";
-import { getDatabase, onChildAdded, onValue, ref } from "firebase/database";
+import {
+  get,
+  getDatabase,
+  onChildAdded,
+  onValue,
+  ref,
+} from "firebase/database";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleNotch, faTimes } from "@fortawesome/free-solid-svg-icons";
 import ICard from "./Card/ICard";
@@ -22,7 +28,11 @@ import Modal from "../UI/Modal";
 import ChooseColor from "./ChooseColor/ChooseColor";
 import { getAuth, onAuthStateChanged, signInAnonymously } from "firebase/auth";
 import Button from "../UI/Button";
-import { angleToPosition, turnToRelativePos } from "./PositionUtils";
+import {
+  angleToPosition,
+  getRelativeIndex,
+  turnToRelativePos,
+} from "./PositionUtils";
 
 const getCardsFromOther = (roomInfo: any, index: number, i: number) => {
   if (roomInfo.cards) {
@@ -57,6 +67,7 @@ const GameTable = () => {
     useState({ active: false, cards: [] });
   const [chooseColor, setChooseColor]: [ICard | undefined, any] =
     useState(undefined);
+  const [names, setNames] = useState([]);
   const [rules, setRules]: [any, any] = useState({});
   const numberOfPlayers = rules.numberOfPlayers;
 
@@ -81,6 +92,13 @@ const GameTable = () => {
           if (players < numberOfPlayers) {
             setPlayers(newRoomInfo.players.length);
           }
+          const playersRef = ref(getDatabase(app), `players`);
+          get(playersRef).then((playersInfo) => {
+            const playersValue: any = playersInfo.val();
+            setNames(
+              newRoomInfo.players.map((pId: string) => playersValue[pId]!.name)
+            );
+          });
           setRules(newRoomInfo.rules);
           setTopCard(newRoomInfo.top);
           setDeck(newRoomInfo.deck);
@@ -166,6 +184,8 @@ const GameTable = () => {
     } else setGrouping({ active: true, cards: [] });
   };
 
+  console.log(names);
+
   return (
     <div
       className={`${classes.table} ${
@@ -210,6 +230,7 @@ const GameTable = () => {
           />
           <Hand
             mine
+            name={names[getRelativeIndex(i, 0, numberOfPlayers)]}
             grouping={grouping}
             clickedGroup={handleGroupClicked}
             myTurn={currentTurn === 0}
@@ -236,18 +257,21 @@ const GameTable = () => {
               ...angleToPosition(-Math.PI / 2),
               width: `80vw`,
               height: `11.2em`,
-              backgroundColor:"black"
+              backgroundColor: "black",
             }}
             className={`${classes["my-hand"]}`}
             cards={[...(cards[0] ? cards[0] : [])]}
           />
           {cards.slice(1).map((handCards, index) => (
             <Hand
+              name={names[getRelativeIndex(i, index + 1, numberOfPlayers)]}
               myTurn={currentTurn === index + 1}
               cards={handCards}
               key={index}
               style={{
-                ...angleToPosition(-Math.PI / 2 + (Math.PI * 2) / cards.length),
+                ...angleToPosition(
+                  -Math.PI / 2 + (index + 1) * ((Math.PI * 2) / numberOfPlayers)
+                ),
               }}
             />
           ))}
