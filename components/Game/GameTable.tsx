@@ -37,8 +37,8 @@ import {
 const getCardsFromOther = (roomInfo: any, index: number, i: number) => {
   if (roomInfo.cards) {
     const otherPlayerCards =
-      roomInfo.cards[(index + i) % roomInfo.cards.length];
-    if (otherPlayerCards)
+      roomInfo.cards[(index + i) % roomInfo.cards.length].hand;
+    if (otherPlayerCards!=="finished")
       return otherPlayerCards.map((c: any) => {
         return { id: c.id, identifier: "back" };
       });
@@ -115,7 +115,8 @@ const GameTable = () => {
           setCards(
             newRoomInfo.cards.map((hand: ICard[], i: number) => {
               if (i === 0) {
-                return newRoomInfo.cards[index];
+                const hand = newRoomInfo.cards[index].hand;
+                return hand==="finished"?[]:hand;
               }
               return getCardsFromOther(newRoomInfo, index, i);
             })

@@ -12,7 +12,7 @@ export const fetchCardsForPlayer = async (
   const roomInfo = (await get(roomRef)).val();
   const players: any[] = roomInfo.players;
   const myIndex = players.findIndex((el) => el === playerId);
-  return roomInfo.cards[myIndex];
+  return roomInfo.cards[myIndex].hand;
 };
 
 export const fetchNumberOfPlayers = async (app: any, gameId: any) => {
@@ -50,10 +50,19 @@ export const cardIsPlayable = (
   return false;
 };
 
-const getNextTurn = (preTurn: number, direction: number, cards: ICard[]) => {
-  let nextTurn = (((preTurn + direction) % 4) + 4) % 4;
-  while (!cards[nextTurn]) {
-    nextTurn = (((nextTurn + direction) % 4) + 4) % 4;
+const getNextTurn = (
+  preTurn: number,
+  direction: number,
+  cards: { hand: ICard[]|string }[],
+  numberOfPlayers: number
+) => {
+  let nextTurn =
+    (((preTurn + direction) % numberOfPlayers) + numberOfPlayers) %
+    numberOfPlayers;
+  while (cards[nextTurn].hand === "finished") {
+    nextTurn =
+      (((nextTurn + direction) % numberOfPlayers) + numberOfPlayers) %
+      numberOfPlayers;
   }
   return nextTurn;
 };
@@ -73,7 +82,7 @@ export const handlePlayCard = (
 ) => {
   const db = getDatabase(app);
   const roomRef = ref(db, `rooms/${gameId}`);
-  const index = get(roomRef).then((snapshot) => {
+  get(roomRef).then((snapshot) => {
     const preInfo = snapshot.val();
 
     if (preInfo.players[preInfo.turn] === playerId) {
@@ -82,16 +91,27 @@ export const handlePlayCard = (
 
       let newTake = preInfo.take;
       let newDirection = preInfo.direction;
-      let newTurn = getNextTurn(preInfo.turn, newDirection, preInfo.cards);
+      let newTurn = getNextTurn(
+        preInfo.turn,
+        newDirection,
+        preInfo.cards,
+        rules.numberOfPlayers
+      );
 
       for (const playableCard of playableCards) {
         // remove the card from the hand of the player
-        newCards[index] = newCards[index].filter(
+        newCards[index].hand = newCards[index].hand.filter(
           (c: any) => c.id !== playableCard.id
         );
         switch (playableCard.identifier) {
           case "reverse":
             newDirection *= -1;
+            newTurn = getNextTurn(
+              preInfo.turn,
+              newDirection,
+              preInfo.cards,
+              rules.numberOfPlayers
+            );
             break;
           case "+2":
             newTake += 2;
@@ -100,12 +120,20 @@ export const handlePlayCard = (
             newTake += 4;
             break;
           case "forbid":
-            newTurn = getNextTurn(newTurn, newDirection, preInfo.cards);
+            newTurn = getNextTurn(
+              newTurn,
+              newDirection,
+              preInfo.cards,
+              rules.numberOfPlayers
+            );
             break;
         }
-
         //condition when the game ends
         let i: number = 0;
+        if (newCards[index].hand.length===0)
+        {
+          newCards[index].hand = "finished";
+        }
         newCards.forEach((el) => {
           if (!el || el.length === 0) i++;
         });
@@ -113,14 +141,14 @@ export const handlePlayCard = (
           (rules.endWhenOneEnds && i === 1) ||
           (!rules.endWhenOneEnds && i === rules.numberOfPlayers - 1)
         ) {
-          setNewGame(app, gameId,undefined,preInfo.rules);
+          setNewGame(app, gameId, undefined, preInfo.rules);
         }
       }
       set(roomRef, {
         ...snapshot.val(),
         top: playableCards[playableCards.length - 1],
         cards: newCards.map((el) => {
-          if (!el) return [];
+          if (!el) return { hand: [] };
           else return el;
         }),
         take: newTake,
@@ -166,6 +194,7 @@ export const drawFromDeck = (
     canPlayMultiple: boolean;
     canPlayOverTake: boolean;
     endWhenOneEnds: boolean;
+    numberOfPlayers: number;
   }
 ) => {
   const db = getDatabase(app);
@@ -179,10 +208,12 @@ export const drawFromDeck = (
       const deck = preInfo.deck;
 
       const newCard: ICard = preInfo.deck.pop();
-      newCards[index].push(newCard);
+      newCards[index].hand.push(newCard);
       if (preInfo.deck.length === 0) {
         preInfo.deck = preInfo.playedCards.sort(() => {
-          return Math.random() - 0.5;
+          const a = Math.random();
+          const b = Math.random();
+          return a - b;
         });
         preInfo.playedCards = [];
       }
@@ -191,13 +222,18 @@ export const drawFromDeck = (
         deck: preInfo.deck,
         playedCards: preInfo.playedCards ? preInfo.playedCards : [],
         cards: newCards.map((el) => {
-          if (!el) return [];
+          if (!el) return { hand: [] };
           else return el;
         }),
         turn:
           !rules.takeUntilPlay &&
           !cardIsPlayable(newCard, preInfo.top, 0, rules)
-            ? getNextTurn(preInfo.turn, preInfo.direction, preInfo.cards)
+            ? getNextTurn(
+                preInfo.turn,
+                preInfo.direction,
+                preInfo.cards,
+                rules.numberOfPlayers
+              )
             : preInfo.turn,
       });
     }
@@ -221,7 +257,7 @@ export const handleTake = (
       const deck = preInfo.deck;
 
       while (take > 0) {
-        newCards[index].push(preInfo.deck.pop());
+        newCards[index].hand.push(preInfo.deck.pop());
         take--;
       }
       if (preInfo.deck.length === 0) {
@@ -235,11 +271,11 @@ export const handleTake = (
         deck: preInfo.deck,
         playedCards: preInfo.playedCards,
         cards: newCards.map((el) => {
-          if (!el) return [];
+          if (!el) return { hand: [] };
           else return el;
         }),
         take: 0,
-        turn: getNextTurn(preInfo.turn, preInfo.direction, preInfo.cards),
+        turn: getNextTurn(preInfo.turn, preInfo.direction, preInfo.cards, preInfo.rules.numberOfPlayers),
       });
     }
   });
@@ -314,19 +350,26 @@ export const setNewGame = async (
   do {
     deck = Array.from(getDeck())
       .map((el) => el[1])
-      .sort(() => Math.random() - 0.5);
+      .sort(() => {
+        const a = Math.random();
+        const b = Math.random();
+        return a - b;
+      });
   } while (
     deck[7 * players].identifier === "+4" ||
     deck[7 * players].identifier === "choose"
   );
 
   // deal the cards
-  const cards: ICard[][] = [];
+  const cards: { hand: ICard[] }[] = [];
   const numberOfCardsPerPlayer = 7;
   for (let i = 0; i < players; i++) {
-    cards.push(
-      deck.slice(i * numberOfCardsPerPlayer, (i + 1) * numberOfCardsPerPlayer)
-    );
+    cards.push({
+      hand: deck.slice(
+        i * numberOfCardsPerPlayer,
+        (i + 1) * numberOfCardsPerPlayer
+      ),
+    });
   }
 
   await set(gameRef, {
