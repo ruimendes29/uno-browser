@@ -50,10 +50,12 @@ const Hand = (props: {
 
   useEffect(() => {
     if (props.cards) {
-      addEventListener("resize", () => {
+      const onResize = () => {
         updateTranslateValue(props.cards.length);
-      });
+      };
+      addEventListener("resize", onResize);
       updateTranslateValue(props.cards.length);
+      return () => removeEventListener("resize", onResize);
     }
   }, [updateTranslateValue, props.cards]);
 

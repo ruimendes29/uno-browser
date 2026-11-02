@@ -128,21 +128,20 @@ export const handlePlayCard = (
             );
             break;
         }
-        //condition when the game ends
-        let i: number = 0;
-        if (newCards[index].hand.length===0)
-        {
+        if (newCards[index].hand.length === 0) {
           newCards[index].hand = "finished";
         }
-        newCards.forEach((el) => {
-          if (!el || el.length === 0) i++;
-        });
-        if (
-          (rules.endWhenOneEnds && i === 1) ||
-          (!rules.endWhenOneEnds && i === rules.numberOfPlayers - 1)
-        ) {
-          setNewGame(app, gameId, undefined, preInfo.rules);
-        }
+      }
+      //condition when the game ends
+      const finished = newCards.filter(
+        (el) => el && el.hand === "finished"
+      ).length;
+      if (
+        (rules.endWhenOneEnds && finished >= 1) ||
+        (!rules.endWhenOneEnds && finished >= rules.numberOfPlayers - 1)
+      ) {
+        setNewGame(app, gameId, undefined, preInfo.rules);
+        return;
       }
       set(roomRef, {
         ...snapshot.val(),
@@ -185,6 +184,21 @@ export const doesNotHavePlayableCards = (
   return true;
 };
 
+/**
+ * Take the top card of the deck, reshuffling the played cards into a new deck
+ * when it runs out (Firebase drops empty arrays, so the deck may be missing).
+ * Mutates roomInfo.deck and roomInfo.playedCards.
+ */
+const drawCard = (roomInfo: any): ICard | undefined => {
+  if (!roomInfo.deck || roomInfo.deck.length === 0) {
+    roomInfo.deck = (roomInfo.playedCards || []).sort(
+      () => Math.random() - 0.5
+    );
+    roomInfo.playedCards = [];
+  }
+  return roomInfo.deck.pop();
+};
+
 export const drawFromDeck = (
   app: any,
   gameId: any,
@@ -205,18 +219,10 @@ export const drawFromDeck = (
     if (preInfo.players[preInfo.turn] === playerId) {
       const index = preInfo.players.findIndex((el: string) => el === playerId);
       const newCards = [...preInfo.cards];
-      const deck = preInfo.deck;
 
-      const newCard: ICard = preInfo.deck.pop();
+      const newCard = drawCard(preInfo);
+      if (!newCard) return;
       newCards[index].hand.push(newCard);
-      if (preInfo.deck.length === 0) {
-        preInfo.deck = preInfo.playedCards.sort(() => {
-          const a = Math.random();
-          const b = Math.random();
-          return a - b;
-        });
-        preInfo.playedCards = [];
-      }
       set(roomRef, {
         ...snapshot.val(),
         deck: preInfo.deck,
@@ -254,22 +260,17 @@ export const handleTake = (
     if (preInfo.players[preInfo.turn] === playerId) {
       const index = preInfo.players.findIndex((el: string) => el === playerId);
       const newCards = [...preInfo.cards];
-      const deck = preInfo.deck;
 
       while (take > 0) {
-        newCards[index].hand.push(preInfo.deck.pop());
+        const newCard = drawCard(preInfo);
+        if (!newCard) break;
+        newCards[index].hand.push(newCard);
         take--;
-      }
-      if (preInfo.deck.length === 0) {
-        preInfo.deck = preInfo.playedCards.sort(() => {
-          return Math.random() - 0.5;
-        });
-        preInfo.playedCards = [];
       }
       set(roomRef, {
         ...snapshot.val(),
         deck: preInfo.deck,
-        playedCards: preInfo.playedCards,
+        playedCards: preInfo.playedCards ? preInfo.playedCards : [],
         cards: newCards.map((el) => {
           if (!el) return { hand: [] };
           else return el;

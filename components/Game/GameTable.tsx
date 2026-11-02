@@ -47,12 +47,14 @@ const getCardsFromOther = (roomInfo: any, index: number, i: number) => {
 };
 
 const GameTable = () => {
-  const app = initializeApp(firebaseConfig);
-  onAuthStateChanged(getAuth(app), (user) => {
-    if (!user) {
-      signInAnonymously(getAuth(app));
-    }
-  });
+  useEffect(() => {
+    const auth = getAuth(initializeApp(firebaseConfig));
+    return onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        signInAnonymously(auth);
+      }
+    });
+  }, []);
 
   const router = useRouter();
   const [cards, setCards] = useState([]);
@@ -73,13 +75,18 @@ const GameTable = () => {
 
   const currentTurn = turnToRelativePos(i, turn, numberOfPlayers);
 
-  console.log(currentTurn);
   useEffect(() => {
-    setPlayerId(localStorage.getItem("player")!);
-    if (router.query.gameId) {
+    const storedPlayer = localStorage.getItem("player");
+    if (!storedPlayer) {
+      // opened a room link without a name yet: go pick one first
+      router.replace("/");
+      return;
+    }
+    setPlayerId(storedPlayer);
+    if (router.query.gameId && playerId) {
       const app = initializeApp(firebaseConfig);
       const gameString = `rooms/${router.query.gameId}`;
-      onValue(ref(getDatabase(app), gameString), (snapshot) => {
+      return onValue(ref(getDatabase(app), gameString), (snapshot) => {
         const newRoomInfo = snapshot.val();
         if (
           newRoomInfo !== null &&
@@ -89,29 +96,22 @@ const GameTable = () => {
           const index = newRoomInfo.players.findIndex(
             (el: string) => el === playerId
           );
-          if (players < numberOfPlayers) {
-            setPlayers(newRoomInfo.players.length);
-          }
+          setPlayers(newRoomInfo.players.length);
           const playersRef = ref(getDatabase(app), `players`);
           get(playersRef).then((playersInfo) => {
-            const playersValue: any = playersInfo.val();
+            const playersValue: any = playersInfo.val() || {};
             setNames(
-              newRoomInfo.players.map((pId: string) => playersValue[pId]!.name)
+              newRoomInfo.players.map(
+                (pId: string) => (playersValue[pId] && playersValue[pId].name) || ""
+              )
             );
           });
           setRules(newRoomInfo.rules);
           setTopCard(newRoomInfo.top);
           setDeck(newRoomInfo.deck);
-          if (index !== i) {
-            setI(index);
-          }
-          if (newRoomInfo.turn !== turn) {
-            setTurn(newRoomInfo.turn);
-          }
-          if (newRoomInfo.take !== take) {
-            setTake(newRoomInfo.take);
-          }
-          setRules;
+          setI(index);
+          setTurn(newRoomInfo.turn);
+          setTake(newRoomInfo.take);
           setCards(
             newRoomInfo.cards.map((hand: ICard[], i: number) => {
               if (i === 0) {
@@ -124,7 +124,7 @@ const GameTable = () => {
         }
       });
     }
-  }, [i, router.query.gameId, turn, players, take, playerId, numberOfPlayers]);
+  }, [router, router.query.gameId, playerId]);
 
   const cantPlay = useMemo(
     () =>
@@ -184,8 +184,6 @@ const GameTable = () => {
       setGrouping({ active: false, cards: [] });
     } else setGrouping({ active: true, cards: [] });
   };
-
-  console.log(names);
 
   return (
     <div

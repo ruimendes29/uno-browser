@@ -18,6 +18,7 @@ const Playground = (props: {
     canPlayMultiple: boolean;
     canPlayOverTake: boolean;
     endWhenOneEnds: boolean;
+    numberOfPlayers: number;
   }
 }) => {
   return (
