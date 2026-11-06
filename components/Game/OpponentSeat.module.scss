@@ -1,0 +1,40 @@
+.seat {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+  padding: 0.25rem 0.45rem;
+  border: 2px solid rgb(90, 90, 90);
+  border-radius: 0.6rem;
+  transition: all 0.3s;
+}
+
+.seat.turn {
+  border-color: lightgreen;
+  box-shadow: 0 0 8px 1px lightgreen;
+}
+
+.mini {
+  flex: none;
+  font-size: 0.2rem;
+  pointer-events: none;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.2;
+}
+
+.name {
+  font-size: 0.8rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.count {
+  font-size: 1rem;
+  font-weight: 700;
+}

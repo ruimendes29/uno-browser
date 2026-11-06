@@ -23,6 +23,8 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleNotch, faTimes } from "@fortawesome/free-solid-svg-icons";
 import ICard from "./Card/ICard";
+import OpponentSeat from "./OpponentSeat";
+import useCompactLayout from "./useCompactLayout";
 import Playground from "./Playground";
 import Modal from "../UI/Modal";
 import ChooseColor from "./ChooseColor/ChooseColor";
@@ -57,6 +59,7 @@ const GameTable = () => {
   }, []);
 
   const router = useRouter();
+  const compact = useCompactLayout();
   const [cards, setCards] = useState([]);
   const [players, setPlayers] = useState(1);
   const [deck, setDeck] = useState([]);
@@ -187,7 +190,7 @@ const GameTable = () => {
 
   return (
     <div
-      className={`${classes.table} ${
+      className={`${classes.table} ${compact ? classes.compact : ""} ${
         players === numberOfPlayers ? "" : classes["no-players"]
       }`}
     >
@@ -219,6 +222,18 @@ const GameTable = () => {
       )}
       {topCard && players === numberOfPlayers && (
         <Fragment>
+          {compact && (
+            <div className={`${classes.seats}`}>
+              {cards.slice(1).map((handCards: any[], index) => (
+                <OpponentSeat
+                  key={index}
+                  name={names[getRelativeIndex(i, index + 1, numberOfPlayers)]}
+                  cardCount={handCards.length}
+                  myTurn={currentTurn === index + 1}
+                />
+              ))}
+            </div>
+          )}
           <Playground
             rules={rules}
             myTurn={i === turn}
@@ -229,6 +244,7 @@ const GameTable = () => {
           />
           <Hand
             mine
+            compact={compact}
             name={names[getRelativeIndex(i, 0, numberOfPlayers)]}
             grouping={grouping}
             clickedGroup={handleGroupClicked}
@@ -261,7 +277,7 @@ const GameTable = () => {
             className={`${classes["my-hand"]}`}
             cards={[...(cards[0] ? cards[0] : [])]}
           />
-          {cards.slice(1).map((handCards, index) => (
+          {!compact && cards.slice(1).map((handCards, index) => (
             <Hand
               name={names[getRelativeIndex(i, index + 1, numberOfPlayers)]}
               myTurn={currentTurn === index + 1}

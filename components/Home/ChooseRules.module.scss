@@ -9,22 +9,26 @@
     padding: 0;
     text-decoration: 0;
     padding-left: 1%;
-    white-space: nowrap;
+    text-align: left;
   }
 }
 
 .players{
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  text-align: left;
   .set-players{
-    width: 15%;
+    flex: none;
     display: flex;
-    gap: 2%;
+    gap: 0.5rem;
     justify-content: center;
     align-items: center;
     .icon{
-      padding: 1%;
-      aspect-ratio: 1/1;
+      width: 2rem;
+      height: 2rem;
+      padding: 0.45rem;
       background-color: rgb(129, 129, 129);
       border-radius: 50%;
       cursor: pointer;
@@ -33,7 +37,8 @@
     h3{
       margin: 0;
       padding: 0;
-      width: 100%;
+      width: 1.5em;
+      text-align: center;
     }
   
   }
@@ -42,14 +47,17 @@
 
 .code {
   border: 2px solid white;
-  border-radius: 0.25vw;
+  border-radius: 0.5rem;
   margin-top: 2rem;
   color: white;
   display: flex;
   align-items: center;
   justify-content: space-between;
   .room {
-    padding-left: 1rem;
+    padding: 0.5rem 0.5rem 0.5rem 1rem;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    text-align: left;
   }
   .icon {
     padding: 1rem;
@@ -67,7 +75,6 @@
   padding: 0;
   text-decoration: 0;
   padding-left: 1%;
-  white-space: nowrap;
   opacity: 0;
 }
 

@@ -36,3 +36,66 @@
 
     }
 }
+
+.compact {
+    flex: none;
+    width: 100%;
+    min-width: 0;
+    border-top: 2px solid rgb(90, 90, 90);
+    transition: border-color 0.3s;
+    &.turn {
+        border-top-color: lightgreen;
+    }
+    .header {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        min-height: 2.5rem;
+        padding: 0.2rem 0.5rem 0;
+    }
+    .name {
+        font-size: 1rem;
+        font-weight: 700;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .badge {
+        flex: none;
+        padding: 0.1rem 0.5rem;
+        border-radius: 1rem;
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: black;
+        background-color: lightgreen;
+    }
+    .group {
+        flex: none;
+        width: auto;
+        min-width: 5rem;
+        margin-left: auto;
+        padding: 0.45rem 0.9rem;
+        font-size: 1rem;
+        border-radius: 0.6rem;
+    }
+    // the font-size sets the size of the cards
+    .scroller {
+        display: flex;
+        font-size: clamp(7.5px, min(2.7vw, 2.1vh), 14px);
+        padding: 1.4em 0.6em 0.5em;
+        overflow-x: auto;
+        overflow-y: hidden;
+        overscroll-behavior-x: contain;
+        scrollbar-width: none;
+        &::-webkit-scrollbar {
+            display: none;
+        }
+    }
+    .track {
+        position: relative;
+        flex: none;
+        height: 11.2em;
+        margin: 0 auto;
+    }
+}

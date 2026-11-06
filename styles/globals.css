@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100;300&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100;300;700&display=swap');
 
 @keyframes upanddown {
   0% {
@@ -12,18 +12,35 @@
   }
 }
 
+html {
+  --frame: 2vw;
+}
+
+@media (max-width: 820px), (max-height: 560px) {
+  html {
+    --frame: 6px;
+  }
+}
+
 html,
 body {
   background-color: black;
-  outline: white solid 2vw;
-  outline-offset: -2vw;
+  outline: white solid var(--frame);
+  outline-offset: calc(-1 * var(--frame));
   border-radius: 2vw;
   color:white;
   padding: 0;
   margin: 0;
-  font-size: min(2vmin,16px);
+  font-size: clamp(14px, 2vmin, 16px);
+  touch-action: manipulation;
+  -webkit-text-size-adjust: 100%;
   font-weight: 300;
   font-family: 'Montserrat', sans-serif;
+}
+
+button,
+input {
+  font-family: inherit;
 }
 
 a {
@@ -41,6 +58,10 @@ a {
 
 *::before{
   box-sizing: border-box;
+}
+
+.arrow-pointer{
+  box-shadow: 0 0 0 0.2em gold;
 }
 
 .arrow-pointer::before{

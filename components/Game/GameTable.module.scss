@@ -3,6 +3,8 @@
 .table {
   display: grid;
   height: 100vh;
+  height: 100dvh;
+  font-size: min(2vmin, 16px);
   position: relative;
   grid-template-columns: 11.2em calc(100vw - 22.4em) 11.2em;
   grid-template-rows: 12em calc(100vh - 24em) 12em;
@@ -65,8 +67,7 @@
   }
   .playground {
     &>*>*{
-      background-color: blue;
-      font-size: 0.7rem!important;
+      font-size: 0.7em!important;
     }
     grid-column-start: 2;
     grid-row-start: 2;
@@ -82,3 +83,51 @@
   }
 }
 
+// Phones and small windows: opponents become a strip of seats at the top, the
+// discard pile takes the free space and my hand sits at the bottom.
+.table.compact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: calc(var(--frame) + 0.25rem);
+  overflow: hidden;
+  font-size: 1rem;
+
+  .leave {
+    position: absolute;
+    top: calc(var(--frame) + 0.25rem);
+    right: calc(var(--frame) + 0.25rem);
+    z-index: 5;
+    width: 2.75rem;
+    max-width: none;
+    height: 2.75rem;
+    padding: 0.6rem;
+  }
+
+  .seats {
+    flex: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(5.25rem, 1fr));
+    gap: 0.3rem;
+    min-height: 2.75rem;
+    padding-right: 2.9rem;
+  }
+
+  .waiting {
+    margin: auto;
+  }
+
+  // the font-size sets the size of the cards
+  .playground {
+    margin: auto;
+    padding: 0.9em 1.2em;
+    aspect-ratio: auto;
+    border-radius: 2.4em;
+    border-width: 3px;
+    transform: none;
+    font-size: clamp(9px, min(4.2vw, 3.2vh), 20px);
+    & > * > * {
+      font-size: 1em !important;
+    }
+  }
+}

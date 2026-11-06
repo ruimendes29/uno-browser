@@ -1,13 +1,13 @@
 .card{
     background-color: black;
-    outline: white solid 0.5vw;
+    outline: white solid clamp(2px, 0.5vw, 8px);
     outline-offset: -1px;
-    border-radius: 0.25vw;
-    padding: 2vw;
+    border-radius: 0.5rem;
+    padding: clamp(1rem, 2vw, 2.5rem);
     text-align: center;
     .title{
-        padding-bottom: 2rem;
-        font-size: 2vw;
+        padding-bottom: clamp(1rem, 2vw, 2rem);
+        font-size: clamp(1.15rem, 2vw, 2.5rem);
         font-weight: bolder;
     }
 }

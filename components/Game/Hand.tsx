@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import Button from "../UI/Button";
 import Card from "./Card/Card";
 import ICard from "./Card/ICard";
@@ -9,6 +9,7 @@ const Hand = (props: {
   onPlay?: Function;
   className?: string;
   mine?: boolean;
+  compact?: boolean;
   myTurn: boolean;
   canPlayMultiple?: boolean;
   clickedGroup?:any;
@@ -18,15 +19,34 @@ const Hand = (props: {
   name:string
 }) => {
   const [translateValue, setTranslateValue] = useState(0);
+  const scrollerRef = useRef<HTMLDivElement>(null);
 
   const updateTranslateValue = useCallback(
     (cardsInHand: number) => {
+      if (props.compact && scrollerRef.current) {
+        // spread the cards over the available width, but keep enough of each
+        // one visible to tap it: past that point the hand scrolls sideways
+        const styles = getComputedStyle(scrollerRef.current);
+        const em = parseFloat(styles.fontSize);
+        const cardWidth = 8 * em;
+        const available =
+          scrollerRef.current.clientWidth -
+          parseFloat(styles.paddingLeft) -
+          parseFloat(styles.paddingRight);
+        const otherCards = Math.max(cardsInHand - 1, 1);
+        setTranslateValue(
+          Math.max(
+            3.4 * em,
+            Math.min(cardWidth + 0.4 * em, (available - cardWidth) / otherCards)
+          )
+        );
+        return;
+      }
       const em1 = Math.min(
         16,
         0.02 * Math.min(window.innerWidth, window.innerHeight)
       );
       const cardWidth = 8 * em1;
-      const cardHeight = 11.2 * em1;
       const handSize = !props.mine
         ? 0.6 * Math.min(window.innerHeight, window.innerWidth)
         : 0.8 * window.innerWidth;
@@ -39,7 +59,7 @@ const Hand = (props: {
           : cardWidth;
       setTranslateValue(Math.ceil(tv));
     },
-    [props.mine]
+    [props.mine, props.compact]
   );
 
   const handlePlayedCard = (card: ICard) => {
@@ -59,6 +79,73 @@ const Hand = (props: {
     }
   }, [updateTranslateValue, props.cards]);
 
+  const groupButton = props.myTurn && props.canPlayMultiple && (
+    <Button
+      noEffect
+      style={{
+        backgroundColor: props.grouping && props.grouping.active ? "green" : "darkblue",
+      }}
+      className={`${classes.group}`}
+      onClick={() => {
+        props.clickedGroup();
+      }}
+    >
+      {props.grouping!.active
+        ? props.grouping!.cards.length > 0
+          ? "Play"
+          : "Select"
+        : "Group"}
+    </Button>
+  );
+
+  const cards =
+    props.cards &&
+    props.cards.map((card: ICard, index: number) => {
+      return (
+        <Card
+          onClick={() => {
+            handlePlayedCard(card);
+          }}
+          style={{
+            ...(props.selected && props.selected.includes(card)
+              ? { top: "-10%" }
+              : {}),
+            position: "absolute",
+            zIndex: index,
+            left: Math.floor(translateValue * index) + "px",
+          }}
+          key={card.id + "_" + card.identifier + "_" + card.color}
+          identifier={card.identifier}
+          color={card.color}
+        />
+      );
+    });
+
+  if (props.compact) {
+    const cardCount = props.cards ? props.cards.length : 0;
+    return (
+      <div className={`${classes.compact} ${props.myTurn ? classes.turn : ""}`}>
+        <div className={`${classes.header}`}>
+          <span className={`${classes.name}`}>{props.name}</span>
+          {props.myTurn && <span className={`${classes.badge}`}>Your turn</span>}
+          {groupButton}
+        </div>
+        <div ref={scrollerRef} className={`${classes.scroller}`}>
+          <div
+            className={`${classes.track}`}
+            style={{
+              width: `calc(8em + ${
+                translateValue * Math.max(cardCount - 1, 0)
+              }px)`,
+            }}
+          >
+            {cards}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       style={props.style}
@@ -67,45 +154,8 @@ const Hand = (props: {
       }`}
     >
       <h1 className={`${classes.name}`}>{props.name}</h1>
-      {props.myTurn && props.canPlayMultiple &&
-        <Button
-          noEffect
-          style={{
-            backgroundColor: props.grouping && props.grouping.active ? "green" : "darkblue",
-          }}
-          className={`${classes.group}`}
-          onClick={() => {
-            props.clickedGroup();
-          }}
-        >
-          {props.grouping!.active
-            ? props.grouping!.cards.length > 0
-              ? "Play"
-              : "Select"
-            : "Group"}
-        </Button>
-      }
-      {props.cards &&
-        props.cards.map((card: ICard, index: number) => {
-          return (
-            <Card
-              onClick={() => {
-                handlePlayedCard(card);
-              }}
-              style={{
-                ...(props.selected && props.selected.includes(card)
-                  ? { top: "-10%" }
-                  : {}),
-                position: "absolute",
-                zIndex: index,
-                left: Math.floor(translateValue * index) + "px",
-              }}
-              key={card.id + "_" + card.identifier + "_" + card.color}
-              identifier={card.identifier}
-              color={card.color}
-            />
-          );
-        })}
+      {groupButton}
+      {cards}
     </div>
   );
 };

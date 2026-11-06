@@ -1,78 +1,112 @@
+// Everything is sized in em, so a card scales as a whole with the font-size of
+// its container.
 .card {
   font-size: 100%;
   width: 8em;
   height: 11.2em;
-  display: flex;
-  place-items: center;
-  place-content: center;
   z-index: 1;
   position: relative;
   transition: all 0.3s ease-in-out;
-  border: 8px solid white;
-  border-radius: 0.5em;
-  outline: black solid 2px;
+  border: 0.45em solid white;
+  border-radius: 0.7em;
+  box-shadow: 0 0 0 1px black;
   cursor: pointer;
-  outline-offset: -2px;
-  .sub {
-    position: absolute;
-    width: 20%;
-    min-width: fit-content;
-    font-size: 1.5em;
-    text-align: center;
-    color: white;
-    text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
 
-    &.top {
-      top: 0;
-      left: 2%;
-    }
-    &.bottom {
-      bottom: 0;
-      right: 2%;
-    }
-    &.img{
-        min-width: 20%;
-    }
+.text {
+  display: block;
+  font-weight: 700;
+  line-height: 1;
+  text-shadow: 0.04em 0 0 #000, -0.04em 0 0 #000, 0 0.04em 0 #000,
+    0 -0.04em 0 #000, 0.03em 0.03em 0 #000, -0.03em -0.03em 0 #000,
+    0.03em -0.03em 0 #000, -0.03em 0.03em 0 #000;
+}
+
+.underline {
+  text-decoration: underline;
+  text-decoration-thickness: 0.07em;
+  text-underline-offset: 0.08em;
+}
+
+.icon {
+  display: block;
+}
+
+.corner {
+  position: absolute;
+  font-size: 1.5em;
+  color: white;
+  z-index: 1;
+  .icon {
+    width: 1.05em;
+    height: 1.05em;
   }
-  .identifier {
-    font-size: 4em;
-    position: relative;
-    display: inline-flex;
-    place-items: center;
-    width: 70%;
-    place-content: center;
-    color: white;
-    text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;
-
-    &::after {
-        position: absolute;
-        content: "";
-        max-width: 150%;
-        max-height: 300%;
-        width: 1.4em;
-        height: 2.3em;
-        border: solid 2px black;
-        z-index: -1;
-        border-radius: 50%;
-        background-color: white;
-        transform: rotate(30deg);
-        display: block;
-      }
+  &.top {
+    top: 0.12em;
+    left: 0.14em;
+  }
+  &.bottom {
+    bottom: 0.12em;
+    right: 0.14em;
+    transform: rotate(180deg);
   }
 }
 
-.card.back{
-  &::after{
-    content: "";
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    top:0;
-    left: 0;
-    background-color: black;
-    display: block;
+.center {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--card-color);
+  & > * {
+    grid-area: 1 / 1;
+    position: relative;
   }
-  .identifier{
-    display: none;
+  &::before {
+    content: "";
+    grid-area: 1 / 1;
+    width: 5.4em;
+    height: 8.8em;
+    border-radius: 50%;
+    background-color: white;
+    transform: rotate(30deg);
+  }
+  .icon {
+    width: 4.2em;
+    height: 4.2em;
+  }
+  .text {
+    font-size: 4.2em;
+    &.long {
+      font-size: 3em;
+    }
+  }
+  &.wild {
+    color: white;
+    &::before {
+      display: none;
+    }
+    .icon {
+      width: 7.1em;
+      height: 7.1em;
+    }
+  }
+}
+
+.card.back {
+  background-color: black;
+  &::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 4.6em;
+    height: 7.8em;
+    border: 0.25em solid white;
+    border-radius: 50%;
+    background-color: #c00;
+    transform: translate(-50%, -50%) rotate(30deg);
   }
 }

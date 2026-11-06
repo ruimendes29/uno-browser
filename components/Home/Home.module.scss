@@ -1,5 +1,6 @@
 .home{
     height: 100vh;
+    height: 100dvh;
     display: flex;
     width: 50vw;
     margin: 0 auto;
@@ -27,7 +28,7 @@
         border: none;
         padding: 1rem;
         width: 100%;
-        font-size: min(4vw,1.5rem);
+        font-size: clamp(16px, 4vw, 1.5rem);
     }
     .ipt.invalid{
         color:red;
@@ -54,4 +55,10 @@
         transform: translateX(-50%);
     }
 
+}
+
+@media (max-width: 820px) {
+    .home{
+        width: min(88vw, 30rem);
+    }
 }

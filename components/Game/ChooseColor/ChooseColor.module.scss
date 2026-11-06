@@ -1,19 +1,26 @@
 .colors-wrapper{
     display: flex;
-    gap: 2vw;
+    gap: clamp(0.75rem, 2vw, 2rem);
     .option{
-        width: 10vw;
+        width: clamp(5rem, 10vw, 12rem);
         display: flex;
         align-items: center;
         justify-content: center;
         aspect-ratio: 1/1;
         font-weight: bolder;
-        font-size: 2vw;
-        border-radius: 0.5vw;
+        font-size: clamp(1rem, 2vw, 2rem);
+        border-radius: 0.6rem;
         border: 5px solid black;
         cursor: pointer;
         &:hover{
             filter: brightness(50%);
         }
+    }
+}
+
+@media (max-width: 560px) {
+    .colors-wrapper{
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
     }
 }
